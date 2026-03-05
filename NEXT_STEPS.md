@@ -8,6 +8,20 @@ All 11 test sites are deployed and accessible. Each page is a self-contained sim
 
 ## What to Add Next
 
+### Total Meta Assets Required
+
+To fully implement all 11 test scenarios, you only need a minimal number of core Meta assets. The goal is to use a single set of assets and introduce the specific errors at the implementation level for each site.
+
+| Asset Type | Quantity Needed | Notes |
+|---|:---:|---|
+| **Meta Pixel / Dataset** | 1 | A single Pixel ID can be used across all 11 sites. The different issues (e.g., duplicate install, wrong ID) are simulated in the code. |
+| **Product Catalog** | 1 | A single catalog can hold all the products needed for Sites 01, 06, and 11. Each product within the catalog can be crafted to have the specific intentional issue (e.g., stale price, bad image URL). |
+| **CAPI Server-Side App** | 1 | A single server-side application (e.g., a small Python/Node.js app) can handle all CAPI events. Logic within the app will introduce the specific errors for each test case (e.g., omitting `event_id` for Site 05). |
+| **CRM Webhook Endpoint** | 1 | A single webhook endpoint (e.g., on Zapier or Make.com) can receive leads from all forms. Logic in the webhook flow will determine how to process them to simulate the issues on Sites 02, 09, and 10. |
+
+---
+
+
 ### Step 1 — Install the Meta Pixel (Base Code)
 
 The first thing to add to each site is the Meta Pixel base code. This goes in the `<head>` of every page and enables browser-side event tracking.
