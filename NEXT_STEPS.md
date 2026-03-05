@@ -115,8 +115,8 @@ Sites 01, 06 and 11 are specifically designed to test catalog issues. To make Dy
 
 ```csv
 id,title,description,availability,price,link,image_link,brand,gtin
-prod_123,Classic Leather Sneaker,Test product,in stock,89.99 USD,https://rohantirumeta.github.io/meta-ads-test-sites/sales_catalog_sales/,https://example.com/shoe.jpg,TestBrand,4901234567890
-BAG_001,Canvas Tote Bag,Test product,in stock,45.00 EUR,https://rohantirumeta.github.io/meta-ads-test-sites/sales_catalog_sales/,https://example.com/bag.jpg,TestBrand,4901234567891
+prod_123,Classic Leather Sneaker,Test product,in stock,89.99 USD,https://SBGBizEng.github.io/meta-ads-test-sites/sales_catalog_sales/,https://example.com/shoe.jpg,TestBrand,4901234567890
+BAG_001,Canvas Tote Bag,Test product,in stock,45.00 EUR,https://SBGBizEng.github.io/meta-ads-test-sites/sales_catalog_sales/,https://example.com/bag.jpg,TestBrand,4901234567891
 ```
 
 ---

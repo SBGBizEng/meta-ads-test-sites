@@ -66,7 +66,7 @@ These products demonstrate live video tagging mismatches.
 Once GitHub Pages is live, you can point Commerce Manager to the feed URL directly:
 
 ```
-https://rohantirumeta.github.io/meta-ads-test-sites/catalog/product_feed.csv
+https://SBGBizEng.github.io/meta-ads-test-sites/catalog/product_feed.csv
 ```
 
 1. Go to **Data Sources → Add Items → Use Data Feed → Use a URL**
