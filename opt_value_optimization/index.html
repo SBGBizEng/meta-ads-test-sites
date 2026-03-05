@@ -248,7 +248,11 @@
     const valueStr = val === null ? '' : `, value: ${val}, currency: 'USD'`;
     // Real fbq() Purchase call — intentionally uses the broken value for the current mode
     const eventParams = { content_ids: [id], currency: 'USD' };
-    if (val !== null) eventParams.value = parseFloat(val);
+    if (val !== null) {
+      // For string mode: pass the raw val (a string) to actually demo the type error
+      // For all other modes: pass as-is (number or 0)
+      eventParams.value = (currentMode === 'string') ? val : parseFloat(val);
+    }
     fbq('track', 'Purchase', eventParams);
     log(`fbq('track', 'Purchase', { content_ids: ['${id}']${valueStr} });`);
     log(`  // ${note}`, note.startsWith('✓') ? '#00c851' : '#ff8800');
