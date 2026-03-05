@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FunnelCo — Pixel Optimization Education</title>
   <link rel="stylesheet" href="../style.css" />
+
+  <!-- Meta Pixel Code — Signals Pixel (2600343890366158) -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '2600343890366158');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=2600343890366158&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
   <style>
     .funnel-visual { display: flex; gap: 0; margin: 24px 0; overflow-x: auto; }
     .funnel-stage {
@@ -190,32 +209,38 @@
 
     switch(name) {
       case 'PageView':
-        log(`fbq('track', 'PageView');`);
+        fbq('track', 'PageView');
+        log(`fbq('track', 'PageView');  // Real event fired`);
         showDetail(`<p style="font-size:.85rem;"><strong>PageView</strong><br>Fires correctly on page load.</p>`);
         break;
 
       case 'ViewContent':
-        // Missing: should have content_ids, value
-        log(`fbq('track', 'ViewContent', {});  // ⚠ ISSUE: No content_ids or value`, '#ff8800');
+        // INTENTIONAL ISSUE: Missing content_ids and value
+        fbq('track', 'ViewContent', {});
+        log(`fbq('track', 'ViewContent', {});  // ⚠ ISSUE: No content_ids or value — Real event fired`, '#ff8800');
         showDetail(`<p style="font-size:.85rem; color:var(--orange);">&#9888; <strong>ViewContent</strong><br>Missing <code>content_ids</code> and <code>value</code> parameters.</p>`);
         break;
 
       case 'AddToCart':
         atcCount++;
         document.getElementById('atc-count').textContent = atcCount;
-        log(`fbq('track', 'AddToCart', { content_ids: ['SHOE_001'], value: 129.99, currency: 'USD' });`);
+        // INTENTIONAL ISSUE: Fires on page load (not just cart action)
+        fbq('track', 'AddToCart', { content_ids: ['SHOE_001'], value: 129.99, currency: 'USD' });
+        log(`fbq('track', 'AddToCart', { content_ids: ['SHOE_001'], value: 129.99, currency: 'USD' });  // Real event fired`);
         if (atcCount > 1) log(`  ⚠ ISSUE: AddToCart fires on every page load — count now ${atcCount}x`, '#ff4444');
         showDetail(`<p style="font-size:.85rem; color:var(--red);">&#10060; <strong>AddToCart</strong><br>Has fired <strong>${atcCount}x</strong> — fires on page load, not just cart actions.</p>`);
         break;
 
       case 'InitiateCheckout':
-        log(`fbq('track', 'InitiateCheckout', { content_ids: ['SHOE_001'], value: 129.99, currency: 'USD' });`);
+        fbq('track', 'InitiateCheckout', { content_ids: ['SHOE_001'], value: 129.99, currency: 'USD' });
+        log(`fbq('track', 'InitiateCheckout', { content_ids: ['SHOE_001'], value: 129.99, currency: 'USD' });  // Real event fired`);
         showDetail(`<p style="font-size:.85rem; color:var(--orange);">&#9888; <strong>InitiateCheckout</strong><br>This event is missing from the default funnel — only fires if explicitly triggered.</p>`);
         break;
 
       case 'Purchase':
-        // Intentional: no content_ids, no value, no num_items
-        log(`fbq('track', 'Purchase', {});  // ⚠ ISSUE: No content_ids, value, or num_items`, '#ff4444');
+        // INTENTIONAL ISSUE: no content_ids, no value, no num_items
+        fbq('track', 'Purchase', {});
+        log(`fbq('track', 'Purchase', {});  // ⚠ ISSUE: No content_ids, value, or num_items — Real event fired`, '#ff4444');
         const hasPriorATC = eventOrder.includes('AddToCart');
         if (!hasPriorATC) log(`  ⚠ ISSUE: Purchase fired before AddToCart — wrong funnel order!`, '#ff4444');
         showDetail(`<p style="font-size:.85rem; color:var(--red);">&#10060; <strong>Purchase</strong><br>Missing: <code>content_ids</code>, <code>value</code>, <code>num_items</code><br>${!hasPriorATC ? '<br>&#10060; Fired before AddToCart — illogical order!' : ''}</p>`);
@@ -223,10 +248,10 @@
     }
   }
 
-  // ISSUE: AddToCart fires on page load
-  log(`// Page loaded — PageView + AddToCart both fire automatically`, '#888');
-  fireEvent('PageView');
-  fireEvent('AddToCart'); // Over-fires on page load
+  // ISSUE: AddToCart fires on page load alongside PageView
+  // PageView already fired by pixel base code in <head>; fire AddToCart here to demo the over-firing issue
+  log(`// Page loaded — PageView fired by pixel base code; AddToCart also fires on load (intentional issue)`, '#888');
+  fireEvent('AddToCart'); // Over-fires on page load — intentional issue
 </script>
 
 </body>

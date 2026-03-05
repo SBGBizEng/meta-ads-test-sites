@@ -5,6 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LearnHub — Pixel Setup Mistakes</title>
   <link rel="stylesheet" href="../style.css" />
+
+  <!-- Meta Pixel Code — Signals Pixel (2600343890366158) — Instance #1 (correct) -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '2600343890366158');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=2600343890366158&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
+  <!-- ⚠ INTENTIONAL ISSUE: Duplicate Pixel Install via GTM (Instance #2) -->
+  <script>
+  // Simulates a second fbq('init') call as would happen with a duplicate GTM tag
+  fbq('init', '2600343890366158');  // Duplicate init
+  fbq('track', 'PageView');         // Duplicate PageView — causes double counting
+  </script>
+  <!-- End Duplicate Pixel -->
+
+  <!-- ⚠ INTENTIONAL ISSUE: ViewContent fires on homepage (should not) -->
+  <script>
+  fbq('track', 'ViewContent', { content_name: 'Homepage' });
+  </script>
+
   <style>
     .pixel-status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 24px 0; }
     .pixel-status-card {
@@ -176,11 +208,9 @@
     el.scrollTop = el.scrollHeight;
   }
 
-  // ISSUE 1: PageView fires immediately
-  log(`fbq('track', 'PageView');  // Pixel Instance #1`);
-  // ISSUE 2: Duplicate pixel fires same event
-  log(`fbq('track', 'PageView');  // ⚠ ISSUE: Pixel Instance #2 (duplicate via GTM) — double counting!`, '#ff8800');
-  // ISSUE 3: ViewContent fires on homepage
+  // All three real fbq() calls above already fired from <head> — log them here for visibility
+  log(`fbq('track', 'PageView');  // Instance #1 — fired by base pixel code`);
+  log(`fbq('track', 'PageView');  // ⚠ ISSUE: Instance #2 (duplicate) — double counting!`, '#ff8800');
   log(`fbq('track', 'ViewContent', { content_name: 'Homepage' });  // ⚠ ISSUE: Should NOT fire on homepage`, '#ff4444');
   log(`// ⚠ ISSUE: Consent manager active — subsequent events BLOCKED until user accepts`, '#ff8800');
 
@@ -190,6 +220,7 @@
       alert('Consent not granted — pixel events are blocked. Accept cookies to simulate event firing.');
       return;
     }
+    // INTENTIONAL ISSUE: No ViewContent fires — event not implemented on course click
     log(`// ⚠ ISSUE: No ViewContent fires on course click — event not implemented`, '#ff4444');
     alert('No ViewContent event fires here — this is an intentional missing event issue.');
   }
@@ -197,15 +228,17 @@
   function acceptConsent() {
     consentGranted = true;
     document.getElementById('consent-banner').style.display = 'none';
+    fbq('consent', 'grant');
+    log(`fbq('consent', 'grant');  // Real consent grant sent to pixel`, '#00c851');
     log(`// User accepted consent — pixel events now unblocked`, '#00c851');
-    log(`fbq('consent', 'grant');`);
   }
 
   function rejectConsent() {
     consentGranted = false;
     document.getElementById('consent-banner').style.display = 'none';
+    fbq('consent', 'revoke');
+    log(`fbq('consent', 'revoke');  // Real consent revoke sent to pixel`, '#ff4444');
     log(`// User rejected consent — pixel events remain blocked`, '#ff4444');
-    log(`fbq('consent', 'revoke');`);
   }
 </script>
 

@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LeadGen Pro — Instant Form Test</title>
   <link rel="stylesheet" href="../style.css" />
+
+  <!-- Meta Pixel Code — Leads Pixel (1153691500073913) -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1153691500073913');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1153691500073913&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
   <style>
     .form-progress { display: flex; gap: 0; margin-bottom: 24px; }
     .form-step {
@@ -264,13 +283,15 @@
     document.querySelector('.instant-form-mock').style.display = 'none';
     document.getElementById('thank-you').style.display = 'block';
     log(`// Form submitted — thank you page shown`);
-    log(`// ⚠ ISSUE: No Lead event fires on form submission`, '#ff4444');
+    // INTENTIONAL ISSUE: No Lead event fires — this is the bug being demonstrated
+    log(`// ⚠ ISSUE: No Lead event fires on form submission — intentional missing event`, '#ff4444');
     log(`// ⚠ ISSUE: No CRM webhook triggered — lead exists only in Meta, not in CRM`, '#ff4444');
     log(`// ⚠ ISSUE: No abandonment data collected for any step`, '#ff4444');
     log(`// What SHOULD fire: fbq('track', 'Lead', { lead_id: '...', content_name: 'Free Consultation' });`, '#888');
   }
 
-  log(`fbq('track', 'PageView');  // Only event that fires`, '#888');
+  // PageView already fired by pixel base code in <head>
+  log(`fbq('track', 'PageView');  // Fired by pixel base code on load`, '#888');
   log(`// ⚠ ISSUE: No subsequent events configured for this form`, '#ff8800');
 </script>
 

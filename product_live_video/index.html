@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LiveShop — Live Video Shopping Test</title>
   <link rel="stylesheet" href="../style.css" />
+
+  <!-- Meta Pixel Code — Ecomm Pixel (1981397602752829) -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1981397602752829');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1981397602752829&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
   <style>
     .live-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
     @media(max-width:768px){ .live-layout { grid-template-columns: 1fr; } }
@@ -252,7 +271,10 @@
     if (!currentProduct) return;
     const p = currentProduct;
     const idToUse = p.taggedId || p.shownId;
-    log(`fbq('track', 'Purchase', { content_ids: ['${idToUse}'], value: ${p.price.replace('$','')}, currency: 'USD' });`);
+    const priceVal = parseFloat(p.price.replace('$',''));
+    // Real fbq() Purchase call — intentionally uses wrong/missing catalog ID
+    fbq('track', 'Purchase', { content_ids: [idToUse], value: priceVal, currency: 'USD', content_type: 'product' });
+    log(`fbq('track', 'Purchase', { content_ids: ['${idToUse}'], value: ${priceVal}, currency: 'USD', content_type: 'product' });  // Real event fired`);
     if (p.issue === 'wrong_id') log(`  ⚠ ISSUE: Purchase uses tagged ID '${p.taggedId}' ≠ actual product '${p.shownId}'`, '#ff4444');
     if (p.issue === 'not_tagged') log(`  ⚠ ISSUE: No catalog ID available — purchase can't be matched to catalog`, '#ff4444');
     addChat('system', `${p.name} purchased! 🎉`);
@@ -281,7 +303,8 @@
     }
   }
 
-  log(`fbq('track', 'PageView');`, '#888');
+  // PageView already fired by pixel base code in <head>
+  log(`fbq('track', 'PageView');  // Fired by pixel base code on load`, '#888');
 </script>
 
 </body>
