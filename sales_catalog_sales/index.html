@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopNow — Catalog Sales Test Site</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .product-img-placeholder {
+      width: 100%; height: 200px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .cart-sidebar {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      position: sticky;
+      top: 70px;
+    }
+    .cart-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-200); font-size: .9rem; }
+    .cart-total { font-weight: 700; font-size: 1.1rem; display: flex; justify-content: space-between; padding-top: 12px; }
+    .layout-with-sidebar { display: grid; grid-template-columns: 1fr 300px; gap: 32px; align-items: start; }
+    @media(max-width:768px){ .layout-with-sidebar { grid-template-columns: 1fr; } }
+    .issue-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--gray-200); }
+    .issue-row:last-child { border-bottom: none; }
+    .issue-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+    .issue-text strong { display: block; font-size: .9rem; }
+    .issue-text span { font-size: .82rem; color: var(--gray-700); }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .82rem; font-family: monospace; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">ShopNow</a>
+  <span class="badge">Site 01 · Catalog Sales Issues</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> This page simulates intentional catalog &amp; pixel mismatches for Meta Ads QA. No real pixel is loaded.
+</div>
+
+<!-- HERO -->
+<div class="hero" style="padding:40px 24px;">
+  <h1>Summer Collection 2025</h1>
+  <p>Free shipping on orders over $75. New arrivals every week.</p>
+  <a href="#products" class="btn btn-white">Shop Now</a>
+</div>
+
+<div class="container section" id="products">
+  <div class="layout-with-sidebar">
+
+    <!-- Products -->
+    <div>
+      <h2 class="section-title">Featured Products</h2>
+      <p class="section-sub">Click a product to view its detail page and see the pixel event that would fire.</p>
+
+      <div class="grid-2">
+
+        <!-- Product 1 -->
+        <div class="product-card">
+          <div class="product-img-placeholder" style="background:#e8f0fe;">&#128084;</div>
+          <div class="product-info">
+            <div class="product-name">Classic Leather Sneaker</div>
+            <div>
+              <span class="product-price">$89.99</span>
+              <span class="product-price-old">$109.99</span>
+            </div>
+            <div class="mt-8" style="font-size:.78rem; color:#999;">
+              Catalog ID: <code>prod_123</code> &nbsp;|&nbsp; Pixel fires: <code>SKU123</code>
+              <span class="tag tag-red" style="margin-left:4px;">ID Mismatch</span>
+            </div>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-primary btn-sm" onclick="simulateViewContent('SKU123', 99.99, 'USD')">View Product</button>
+            <button class="btn btn-outline btn-sm" onclick="addToCart('SKU123', 89.99)">Add to Cart</button>
+          </div>
+        </div>
+
+        <!-- Product 2 -->
+        <div class="product-card">
+          <div class="product-img-placeholder" style="background:#fef3e2;">&#128083;</div>
+          <div class="product-info">
+            <div class="product-name">Canvas Tote Bag</div>
+            <div>
+              <span class="product-price">$45.00</span>
+            </div>
+            <div class="mt-8" style="font-size:.78rem; color:#999;">
+              Catalog price: <code>€45.00 EUR</code> &nbsp;|&nbsp; Pixel fires: <code>$45.00 USD</code>
+              <span class="tag tag-orange" style="margin-left:4px;">Currency Mismatch</span>
+            </div>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-primary btn-sm" onclick="simulateViewContent('BAG_001', 45.00, 'USD')">View Product</button>
+            <button class="btn btn-outline btn-sm" onclick="addToCart('BAG_001', 45.00)">Add to Cart</button>
+          </div>
+        </div>
+
+        <!-- Product 3 -->
+        <div class="product-card">
+          <div class="product-img-placeholder" style="background:#e6f9f0;">&#128081;</div>
+          <div class="product-info">
+            <div class="product-name">Wool Beanie</div>
+            <div>
+              <span class="product-price">$29.99</span>
+            </div>
+            <div class="mt-8" style="font-size:.78rem; color:#999;">
+              Pixel value: <code>99.99</code> &nbsp;|&nbsp; Catalog price: <code>89.99</code>
+              <span class="tag tag-orange" style="margin-left:4px;">Price Mismatch</span>
+            </div>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-primary btn-sm" onclick="simulateViewContent('BEAN_007', 99.99, 'USD')">View Product</button>
+            <button class="btn btn-outline btn-sm" onclick="addToCart('BEAN_007', 29.99)">Add to Cart</button>
+          </div>
+        </div>
+
+        <!-- Product 4 -->
+        <div class="product-card">
+          <div class="product-img-placeholder" style="background:#fde8e8;">&#128086;</div>
+          <div class="product-info">
+            <div class="product-name">Running Shorts</div>
+            <div>
+              <span class="product-price">$34.99</span>
+            </div>
+            <div class="mt-8" style="font-size:.78rem; color:#999;">
+              Purchase event: <code>content_type</code> missing
+              <span class="tag tag-red" style="margin-left:4px;">Missing content_type</span>
+            </div>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-primary btn-sm" onclick="simulateViewContent('SHORT_02', 34.99, 'USD')">View Product</button>
+            <button class="btn btn-outline btn-sm" onclick="addToCart('SHORT_02', 34.99)">Add to Cart</button>
+          </div>
+        </div>
+
+      </div><!-- /grid -->
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar">
+      <h3 style="font-size:1rem; font-weight:700; margin-bottom:16px;">&#128722; Your Cart</h3>
+      <div id="cart-items">
+        <p style="font-size:.85rem; color:#999; text-align:center; padding:20px 0;">Cart is empty</p>
+      </div>
+      <div class="cart-total" id="cart-total" style="display:none;">
+        <span>Total</span><span id="cart-total-val">$0.00</span>
+      </div>
+      <button class="btn btn-primary btn-full mt-16" onclick="simulatePurchase()">Checkout &amp; Purchase</button>
+      <p style="font-size:.75rem; color:#999; margin-top:8px; text-align:center;">Purchase event fires without <code>content_type</code></p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated Pixel Event Log</h3>
+      <p style="font-size:.85rem; color:var(--gray-700); margin-bottom:12px;">Events that <em>would</em> fire to Meta Pixel — showing the intentional issues.</p>
+      <div id="event-log" style="font-family:monospace; font-size:.8rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:240px; overflow-y:auto;">
+        <span style="color:#888;">// Waiting for interactions...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Issues Reference -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+      <div class="issue-row">
+        <span class="issue-icon">&#128279;</span>
+        <div class="issue-text">
+          <strong>Mismatched content_id</strong>
+          <span>Pixel fires <code>content_id: "SKU123"</code> but catalog has <code>"prod_123"</code> — breaks Dynamic Ads matching.</span>
+        </div>
+      </div>
+      <div class="issue-row">
+        <span class="issue-icon">&#128176;</span>
+        <div class="issue-text">
+          <strong>Price mismatch</strong>
+          <span>Pixel sends <code>value: 99.99</code> but catalog shows <code>price: 89.99</code> — inconsistent reporting &amp; ROAS.</span>
+        </div>
+      </div>
+      <div class="issue-row">
+        <span class="issue-icon">&#10060;</span>
+        <div class="issue-text">
+          <strong>Missing content_type</strong>
+          <span>Purchase event omits <code>content_type: 'product'</code> — catalog matching fails entirely.</span>
+        </div>
+      </div>
+      <div class="issue-row">
+        <span class="issue-icon">&#128178;</span>
+        <div class="issue-text">
+          <strong>Currency mismatch</strong>
+          <span>Pixel sends <code>currency: 'USD'</code> but catalog is configured in <code>EUR</code>.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  ShopNow &mdash; Meta Ads Test Site 01 &mdash; Catalog Sales Issues &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  const cartItems = [];
+  let cartTotal = 0;
+
+  function log(msg) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    el.innerHTML += `\n[${ts}] ${msg}`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function simulateViewContent(id, value, currency) {
+    log(`fbq('track', 'ViewContent', { content_ids: ['${id}'], value: ${value}, currency: '${currency}' });`);
+    if (id === 'SKU123') log(`  ⚠ ISSUE: content_id 'SKU123' ≠ catalog 'prod_123'`);
+    if (currency === 'USD') log(`  ⚠ ISSUE: Pixel currency 'USD' but catalog is EUR (BAG_001)`);
+  }
+
+  function addToCart(id, price) {
+    cartItems.push({ id, price });
+    cartTotal += price;
+    renderCart();
+    log(`fbq('track', 'AddToCart', { content_ids: ['${id}'], value: ${price}, currency: 'USD' });`);
+  }
+
+  function renderCart() {
+    const el = document.getElementById('cart-items');
+    const tot = document.getElementById('cart-total');
+    const totVal = document.getElementById('cart-total-val');
+    if (cartItems.length === 0) {
+      el.innerHTML = '<p style="font-size:.85rem;color:#999;text-align:center;padding:20px 0;">Cart is empty</p>';
+      tot.style.display = 'none';
+      return;
+    }
+    el.innerHTML = cartItems.map(i => `<div class="cart-item"><span>${i.id}</span><span>$${i.price.toFixed(2)}</span></div>`).join('');
+    tot.style.display = 'flex';
+    totVal.textContent = `$${cartTotal.toFixed(2)}`;
+  }
+
+  function simulatePurchase() {
+    if (cartItems.length === 0) { alert('Add items to cart first!'); return; }
+    const ids = cartItems.map(i => `'${i.id}'`).join(', ');
+    // Intentional issue: no content_type
+    log(`fbq('track', 'Purchase', { content_ids: [${ids}], value: ${cartTotal.toFixed(2)}, currency: 'USD' });`);
+    log(`  ⚠ ISSUE: Missing content_type: 'product' — catalog matching will fail`);
+    log(`  ⚠ ISSUE: value sent as ${cartTotal.toFixed(2)} USD but catalog prices differ`);
+    alert('Purchase simulated! Check the event log below.');
+  }
+
+  // Initial PageView log
+  log(`fbq('track', 'PageView');`);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meta Ads Test Sites — Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .hub-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 4px solid var(--blue);
+      transition: transform .15s, box-shadow .15s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .hub-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.13); }
+    .hub-card .card-num {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--blue);
+    }
+    .hub-card h3 { font-size: 1rem; font-weight: 700; }
+    .hub-card .card-type { font-size: .8rem; color: var(--gray-700); }
+    .hub-card .card-issues { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .hub-card .issue-chip {
+      font-size: .72rem;
+      background: #fef3e2;
+      color: #d35400;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-weight: 600;
+    }
+    .category-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gray-700);
+      margin: 32px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--gray-200);
+    }
+    .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <span class="logo">&#9632; Meta Ads Test Sites</span>
+  <span class="badge">11 Sites · Test Environment</span>
+</nav>
+
+<div class="hero">
+  <h1>Meta Ads Testing Hub</h1>
+  <p>A collection of 11 purpose-built test websites, each simulating a specific Meta Ads scenario with intentional implementation issues for QA and debugging.</p>
+</div>
+
+<div class="container section">
+
+  <p class="section-sub" style="margin-bottom:0">
+    Each site below is an independent page designed to replicate a real-world Meta Ads setup — complete with the intentional bugs and misconfigurations documented in the spec. Select a site to open it.
+  </p>
+
+  <!-- CATALOG & SALES -->
+  <div class="category-label">Catalog &amp; Sales</div>
+  <div class="hub-grid">
+
+    <a class="hub-card" href="sales_catalog_sales/index.html">
+      <span class="card-num">Site 01</span>
+      <h3>Catalog Sales Issues</h3>
+      <span class="card-type">E-commerce store with product catalog</span>
+      <div class="card-issues">
+        <span class="issue-chip">Mismatched content_id</span>
+        <span class="issue-chip">Price mismatch</span>
+        <span class="issue-chip">Missing content_type</span>
+        <span class="issue-chip">Currency mismatch</span>
+      </div>
+    </a>
+
+    <a class="hub-card" href="opt_product_catalog/index.html">
+      <span class="card-num">Site 06</span>
+      <h3>Catalog Optimization Issues</h3>
+      <span class="card-type">Product feed showcase</span>
+      <div class="card-issues">
+        <span class="issue-chip">OOS items showing</span>
+        <span class="issue-chip">Missing GTIN/MPN</span>
+        <span class="issue-chip">Bad image URLs</span>
+        <span class="issue-chip">Stale prices</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- PIXEL -->
+  <div class="category-label">Pixel</div>
+  <div class="hub-grid">
+
+    <a class="hub-card" href="edu_pixel_setup/index.html">
+      <span class="card-num">Site 03</span>
+      <h3>Basic Pixel Setup Mistakes</h3>
+      <span class="card-type">Simple landing page / educational site</span>
+      <div class="card-issues">
+        <span class="issue-chip">Wrong page fires</span>
+        <span class="issue-chip">Duplicate pixel</span>
+        <span class="issue-chip">Consent blocking</span>
+        <span class="issue-chip">Missing events</span>
+      </div>
+    </a>
+
+    <a class="hub-card" href="edu_pixel_opt/index.html">
+      <span class="card-num">Site 07</span>
+      <h3>Pixel Optimization Education</h3>
+      <span class="card-type">Multi-step funnel site</span>
+      <div class="card-issues">
+        <span class="issue-chip">Wrong funnel order</span>
+        <span class="issue-chip">Missing mid-funnel</span>
+        <span class="issue-chip">Over-firing events</span>
+        <span class="issue-chip">Missing params</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- VALUE OPTIMIZATION -->
+  <div class="category-label">Value Optimization</div>
+  <div class="hub-grid">
+
+    <a class="hub-card" href="opt_value_optimization/index.html">
+      <span class="card-num">Site 04</span>
+      <h3>Value Optimization Issues</h3>
+      <span class="card-type">E-commerce with varied product prices</span>
+      <div class="card-issues">
+        <span class="issue-chip">Static value</span>
+        <span class="issue-chip">Value as string</span>
+        <span class="issue-chip">Missing value</span>
+        <span class="issue-chip">Zero value</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- CAPI -->
+  <div class="category-label">Conversions API (CAPI)</div>
+  <div class="hub-grid">
+
+    <a class="hub-card" href="opt_conversions_api/index.html">
+      <span class="card-num">Site 05</span>
+      <h3>CAPI Implementation Issues</h3>
+      <span class="card-type">Full-funnel site with server-side tracking</span>
+      <div class="card-issues">
+        <span class="issue-chip">No deduplication</span>
+        <span class="issue-chip">Missing event_id</span>
+        <span class="issue-chip">Wrong action_source</span>
+        <span class="issue-chip">Stale event_time</span>
+      </div>
+    </a>
+
+    <a class="hub-card" href="expansion_capi/index.html">
+      <span class="card-num">Site 08</span>
+      <h3>CAPI Expansion / Gateway Issues</h3>
+      <span class="card-type">Site using CAPI Gateway or partner integration</span>
+      <div class="card-issues">
+        <span class="issue-chip">Gateway misconfiguration</span>
+        <span class="issue-chip">Test mode left on</span>
+        <span class="issue-chip">Partial user data</span>
+        <span class="issue-chip">Event filtering</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- LEADS -->
+  <div class="category-label">Lead Generation</div>
+  <div class="hub-grid">
+
+    <a class="hub-card" href="lead_ads_conversions_api_for_crm/index.html">
+      <span class="card-num">Site 02</span>
+      <h3>Lead Ads + CAPI for CRM</h3>
+      <span class="card-type">B2B lead generation with CRM integration</span>
+      <div class="card-issues">
+        <span class="issue-chip">Missing lead_id</span>
+        <span class="issue-chip">Delayed CAPI events</span>
+        <span class="issue-chip">No downstream events</span>
+        <span class="issue-chip">PII hashing issues</span>
+      </div>
+    </a>
+
+    <a class="hub-card" href="leads_instant_forms/index.html">
+      <span class="card-num">Site 09</span>
+      <h3>Instant Form Issues</h3>
+      <span class="card-type">Lead gen landing page with Instant Form</span>
+      <div class="card-issues">
+        <span class="issue-chip">No thank-you event</span>
+        <span class="issue-chip">Missing conditional fields</span>
+        <span class="issue-chip">No CRM webhook</span>
+        <span class="issue-chip">No abandonment tracking</span>
+      </div>
+    </a>
+
+    <a class="hub-card" href="leads_conversion_leads_setup/index.html">
+      <span class="card-num">Site 10</span>
+      <h3>Conversion Leads Setup Issues</h3>
+      <span class="card-type">Lead gen with quality signals</span>
+      <div class="card-issues">
+        <span class="issue-chip">Missing downstream events</span>
+        <span class="issue-chip">Wrong event mapping</span>
+        <span class="issue-chip">No lead scoring</span>
+        <span class="issue-chip">Missing lead_id</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- LIVE VIDEO -->
+  <div class="category-label">Live Video Shopping</div>
+  <div class="hub-grid">
+
+    <a class="hub-card" href="product_live_video/index.html">
+      <span class="card-num">Site 11</span>
+      <h3>Live Video Shopping Issues</h3>
+      <span class="card-type">Live commerce / video shopping experience</span>
+      <div class="card-issues">
+        <span class="issue-chip">Missing product tags</span>
+        <span class="issue-chip">Events not firing</span>
+        <span class="issue-chip">Replay tracking broken</span>
+        <span class="issue-chip">Wrong content_ids</span>
+      </div>
+    </a>
+
+  </div>
+
+</div>
+
+<footer>
+  Meta Ads Test Environment &mdash; For QA &amp; Debugging Only &mdash;
+  <a href="https://developers.facebook.com/docs/meta-pixel" target="_blank">Meta Pixel Docs</a> &middot;
+  <a href="https://developers.facebook.com/docs/marketing-api/conversions-api" target="_blank">CAPI Docs</a>
+</footer>
+
+</body>
+</html>

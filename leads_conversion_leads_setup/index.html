@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SalesForce CRM — Conversion Leads Test</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .crm-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 24px 0; overflow-x: auto; }
+    .crm-column { background: var(--gray-100); border-radius: var(--radius); padding: 12px; min-width: 140px; }
+    .crm-column h4 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; color: var(--gray-700); }
+    .crm-card { background: var(--white); border-radius: 6px; padding: 10px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); font-size: .78rem; cursor: pointer; border-left: 3px solid var(--gray-200); }
+    .crm-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+    .crm-card.no-event { border-left-color: var(--red); }
+    .crm-card.wrong-event { border-left-color: var(--orange); }
+    .crm-card.ok-event { border-left-color: var(--green); }
+    .crm-card .lead-name { font-weight: 700; margin-bottom: 3px; }
+    .crm-card .lead-event { font-size: .68rem; }
+    .event-map-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray-200); font-size: .82rem; }
+    .event-map-row:last-child { border-bottom: none; }
+    .event-map-row .stage { flex: 1; font-weight: 600; }
+    .event-map-row .actual { flex: 1; }
+    .event-map-row .expected { flex: 1; color: var(--gray-700); font-size: .78rem; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .78rem; font-family: monospace; }
+    .score-bar { height: 8px; border-radius: 4px; background: var(--gray-200); overflow: hidden; margin-top: 4px; }
+    .score-fill { height: 100%; border-radius: 4px; background: var(--blue); }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">SalesCRM</a>
+  <span class="badge">Site 10 · Conversion Leads Setup Issues</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates conversion leads issues — missing downstream events, wrong event mapping, no lead scoring, missing lead_id on late-stage events.
+</div>
+
+<div class="hero" style="padding:40px 24px;">
+  <h1>SalesCRM — Lead Quality Dashboard</h1>
+  <p>Track leads from first contact to closed deal — with quality signals for Meta optimization.</p>
+</div>
+
+<div class="container section">
+
+  <!-- CRM Kanban Board -->
+  <h2 class="section-title">CRM Pipeline Board</h2>
+  <p class="section-sub">Click any lead card to simulate moving it to that stage and see what CAPI event fires (or doesn't).</p>
+
+  <div class="crm-board">
+    <div class="crm-column">
+      <h4>&#128100; Lead</h4>
+      <div class="crm-card ok-event" onclick="moveToStage('Alice Chen', 'Lead')">
+        <div class="lead-name">Alice Chen</div>
+        <div class="lead-event" style="color:var(--green);">&#10003; Lead event fires</div>
+      </div>
+      <div class="crm-card ok-event" onclick="moveToStage('Bob Torres', 'Lead')">
+        <div class="lead-name">Bob Torres</div>
+        <div class="lead-event" style="color:var(--green);">&#10003; Lead event fires</div>
+      </div>
+      <div class="crm-card ok-event" onclick="moveToStage('Carol Wu', 'Lead')">
+        <div class="lead-name">Carol Wu</div>
+        <div class="lead-event" style="color:var(--green);">&#10003; Lead event fires</div>
+      </div>
+    </div>
+
+    <div class="crm-column">
+      <h4>&#128222; Contacted</h4>
+      <div class="crm-card wrong-event" onclick="moveToStage('Alice Chen', 'Contact')">
+        <div class="lead-name">Alice Chen</div>
+        <div class="lead-event" style="color:var(--orange);">&#9888; Purchase used instead</div>
+      </div>
+    </div>
+
+    <div class="crm-column">
+      <h4>&#9989; Qualified</h4>
+      <div class="crm-card no-event" onclick="moveToStage('Alice Chen', 'QualifiedLead')">
+        <div class="lead-name">Alice Chen</div>
+        <div class="lead-event" style="color:var(--red);">&#10060; No event fires</div>
+      </div>
+    </div>
+
+    <div class="crm-column">
+      <h4>&#128203; Proposal</h4>
+      <div class="crm-card no-event" onclick="moveToStage('Alice Chen', 'Schedule')">
+        <div class="lead-name">Alice Chen</div>
+        <div class="lead-event" style="color:var(--red);">&#10060; No event fires</div>
+      </div>
+    </div>
+
+    <div class="crm-column">
+      <h4>&#127881; Converted</h4>
+      <div class="crm-card no-event" onclick="moveToStage('Alice Chen', 'ConvertedLead')">
+        <div class="lead-name">Alice Chen</div>
+        <div class="lead-event" style="color:var(--red);">&#10060; No event, no lead_id</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+
+    <!-- Event Mapping -->
+    <div class="card">
+      <div class="card-body">
+        <h3 class="card-title">Event Mapping: Actual vs. Expected</h3>
+        <div class="event-map-row">
+          <span class="stage">Lead Captured</span>
+          <span class="actual"><span class="tag tag-green">Lead &#10003;</span></span>
+          <span class="expected">Expected: <code>Lead</code></span>
+        </div>
+        <div class="event-map-row">
+          <span class="stage">Contacted</span>
+          <span class="actual"><span class="tag tag-red">Purchase &#10060;</span></span>
+          <span class="expected">Expected: <code>Contact</code></span>
+        </div>
+        <div class="event-map-row">
+          <span class="stage">Qualified</span>
+          <span class="actual"><span class="tag tag-red">Nothing &#10060;</span></span>
+          <span class="expected">Expected: <code>QualifiedLead</code></span>
+        </div>
+        <div class="event-map-row">
+          <span class="stage">Proposal Sent</span>
+          <span class="actual"><span class="tag tag-red">Nothing &#10060;</span></span>
+          <span class="expected">Expected: <code>Schedule</code></span>
+        </div>
+        <div class="event-map-row">
+          <span class="stage">Converted</span>
+          <span class="actual"><span class="tag tag-red">Nothing &#10060;</span></span>
+          <span class="expected">Expected: <code>ConvertedLead</code> + <code>lead_id</code></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lead Scoring -->
+    <div class="card">
+      <div class="card-body">
+        <h3 class="card-title">Lead Quality Signals</h3>
+        <p style="font-size:.82rem; color:var(--gray-700); margin-bottom:16px;">All leads treated equally — no quality scoring sent to Meta.</p>
+
+        <div style="margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:4px;">
+            <span>Alice Chen</span>
+            <span style="color:var(--red);">No score signal</span>
+          </div>
+          <div class="score-bar"><div class="score-fill" style="width:0%;"></div></div>
+          <div style="font-size:.72rem; color:#999; margin-top:2px;">Expected: <code>lead_event_source</code>, quality indicator</div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:4px;">
+            <span>Bob Torres</span>
+            <span style="color:var(--red);">No score signal</span>
+          </div>
+          <div class="score-bar"><div class="score-fill" style="width:0%;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:.82rem; margin-bottom:4px;">
+            <span>Carol Wu</span>
+            <span style="color:var(--red);">No score signal</span>
+          </div>
+          <div class="score-bar"><div class="score-fill" style="width:0%;"></div></div>
+        </div>
+
+        <div style="margin-top:16px; padding:10px; background:#fde8e8; border-radius:4px; font-size:.78rem; color:var(--red);">
+          &#9888; Without lead quality signals, Meta cannot optimise for high-value leads — all leads treated as equal.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Issues Reference -->
+  <div class="card mt-24">
+    <div class="card-body">
+      <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+      <table class="issue-table">
+        <thead><tr><th>Issue</th><th>Detail</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">Missing downstream events</span></td>
+            <td>Lead fires but no Contact, QualifiedLead, or ConvertedLead</td>
+            <td>Meta can't optimise beyond initial lead capture</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Wrong event mapping</span></td>
+            <td>Purchase used instead of <code>Contact</code> for contacted stage</td>
+            <td>Misleading conversion data; skewed ROAS</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">No lead scoring signal</span></td>
+            <td>All leads treated equal — no <code>lead_event_source</code> or quality indicator</td>
+            <td>Can't optimise for lead quality</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Missing lead_id on late-stage</span></td>
+            <td>ConvertedLead event lacks <code>lead_id</code></td>
+            <td>Can't connect conversion back to original lead/ad</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated CAPI Event Log</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:260px; overflow-y:auto;">
+        <span style="color:#888;">// Click lead cards to simulate CRM stage transitions...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  SalesCRM &mdash; Meta Ads Test Site 10 &mdash; Conversion Leads Setup Issues &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  const leadIds = { 'Alice Chen': 'lead_abc123', 'Bob Torres': 'lead_def456', 'Carol Wu': 'lead_ghi789' };
+
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `<span style="color:${c}">[${ts}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function moveToStage(leadName, stage) {
+    const leadId = leadIds[leadName];
+    log(`// ${leadName} moved to stage: ${stage}`, '#888');
+
+    switch(stage) {
+      case 'Lead':
+        log(`fbq('track', 'Lead', { lead_id: '${leadId}', content_name: 'Demo Request' });`);
+        log(`// ✓ Correct event for Lead stage`);
+        break;
+
+      case 'Contact':
+        // ISSUE: Using Purchase instead of Contact
+        log(`fbq('track', 'Purchase', { value: 0, currency: 'USD' });  // ⚠ ISSUE: Should be 'Contact'`, '#ff4444');
+        log(`  // ⚠ ISSUE: Wrong event type — Purchase used for Contacted stage`, '#ff4444');
+        log(`  // ⚠ ISSUE: lead_id not passed — can't link to original lead`, '#ff4444');
+        break;
+
+      case 'QualifiedLead':
+        log(`// ⚠ ISSUE: No CAPI event fires for QualifiedLead stage`, '#ff4444');
+        log(`// Expected: POST /conversions/events { event_name: 'QualifiedLead', lead_id: '${leadId}' }`, '#888');
+        break;
+
+      case 'Schedule':
+        log(`// ⚠ ISSUE: No CAPI event fires for Proposal/Schedule stage`, '#ff4444');
+        log(`// Expected: POST /conversions/events { event_name: 'Schedule', lead_id: '${leadId}' }`, '#888');
+        break;
+
+      case 'ConvertedLead':
+        log(`// ⚠ ISSUE: No CAPI event fires for ConvertedLead stage`, '#ff4444');
+        log(`// ⚠ ISSUE: Even if it did, lead_id would be missing — can't connect to original lead`, '#ff4444');
+        log(`// Expected: POST /conversions/events { event_name: 'ConvertedLead', lead_id: '${leadId}', lead_event_source: 'crm' }`, '#888');
+        break;
+    }
+  }
+</script>
+
+</body>
+</html>

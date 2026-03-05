@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GatewayShop — CAPI Gateway Test</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .gateway-diagram {
+      display: flex; align-items: center; gap: 0; margin: 24px 0; overflow-x: auto;
+      background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px;
+    }
+    .gw-node {
+      flex: 1; min-width: 100px; text-align: center; padding: 16px 8px;
+      border-radius: var(--radius); background: var(--gray-100); border: 1px solid var(--gray-200);
+    }
+    .gw-node.error  { background: #fde8e8; border-color: var(--red); }
+    .gw-node.warn   { background: #fff3cd; border-color: var(--orange); }
+    .gw-node.ok     { background: #e6f9f0; border-color: var(--green); }
+    .gw-arrow { font-size: 1.4rem; color: var(--blue); padding: 0 8px; flex-shrink: 0; }
+    .gw-node .node-icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .gw-node .node-name { font-size: .78rem; font-weight: 700; }
+    .gw-node .node-issue { font-size: .68rem; margin-top: 4px; }
+    .config-panel {
+      background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px;
+    }
+    .config-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray-200); font-size: .85rem; }
+    .config-row:last-child { border-bottom: none; }
+    .config-key { font-family: monospace; font-size: .8rem; background: #f0f0f0; padding: 2px 6px; border-radius: 3px; flex-shrink: 0; min-width: 160px; }
+    .config-val { flex: 1; }
+    .config-status { flex-shrink: 0; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .82rem; font-family: monospace; }
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 24px; transition: .3s; }
+    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s; }
+    input:checked + .toggle-slider { background: var(--red); }
+    input:checked + .toggle-slider:before { transform: translateX(20px); }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">GatewayShop</a>
+  <span class="badge">Site 08 · CAPI Gateway Issues</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates CAPI Gateway/partner integration issues — wrong dataset ID, test mode left on, partial user data, aggressive event filtering.
+</div>
+
+<div class="hero" style="padding:40px 24px;">
+  <h1>GatewayShop — Server-Side Tracking</h1>
+  <p>Using CAPI Gateway for server-side event forwarding — with misconfiguration issues.</p>
+</div>
+
+<div class="container section">
+
+  <!-- Gateway Diagram -->
+  <h2 class="section-title">CAPI Gateway Architecture</h2>
+  <p class="section-sub">Events flow from browser → Gateway → Meta. Issues are injected at each stage.</p>
+
+  <div class="gateway-diagram">
+    <div class="gw-node ok">
+      <div class="node-icon">&#128100;</div>
+      <div class="node-name">Browser</div>
+      <div class="node-issue" style="color:var(--green);">Events fire OK</div>
+    </div>
+    <div class="gw-arrow">→</div>
+    <div class="gw-node error">
+      <div class="node-icon">&#9881;</div>
+      <div class="node-name">CAPI Gateway</div>
+      <div class="node-issue" style="color:var(--red);">Misconfigured</div>
+    </div>
+    <div class="gw-arrow">→</div>
+    <div class="gw-node warn">
+      <div class="node-icon">&#128228;</div>
+      <div class="node-name">Meta API</div>
+      <div class="node-issue" style="color:var(--orange);">Wrong Dataset ID</div>
+    </div>
+    <div class="gw-arrow">→</div>
+    <div class="gw-node warn">
+      <div class="node-icon">&#128202;</div>
+      <div class="node-name">Events Manager</div>
+      <div class="node-issue" style="color:var(--orange);">Test mode active</div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+
+    <!-- Gateway Config Panel -->
+    <div class="config-panel">
+      <h3 style="font-size:1rem; font-weight:700; margin-bottom:16px;">&#9881; Gateway Configuration</h3>
+
+      <div class="config-row">
+        <span class="config-key">dataset_id</span>
+        <span class="config-val"><code style="color:var(--red);">987654321</code> <span class="tag tag-red">Wrong ID</span></span>
+        <span class="config-status"></span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">test_event_code</span>
+        <span class="config-val"><code style="color:var(--red);">TEST12345</code> <span class="tag tag-red">Left on in prod!</span></span>
+        <span class="config-status">
+          <label class="toggle-switch"><input type="checkbox" checked id="test-mode-toggle" onchange="toggleTestMode()"><span class="toggle-slider"></span></label>
+        </span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">user_data</span>
+        <span class="config-val">Only <code>client_ip_address</code> sent <span class="tag tag-orange">Partial</span></span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">event_filter</span>
+        <span class="config-val"><code>min_value: 100</code> — filters out events &lt;$100 <span class="tag tag-red">Too aggressive</span></span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">access_token</span>
+        <span class="config-val" style="color:var(--green);">Valid &#10003;</span>
+      </div>
+    </div>
+
+    <!-- Event Simulation -->
+    <div>
+      <div class="config-panel">
+        <h3 style="font-size:1rem; font-weight:700; margin-bottom:16px;">&#128228; Send Test Events</h3>
+        <p style="font-size:.82rem; color:var(--gray-700); margin-bottom:16px;">Simulate events through the misconfigured gateway.</p>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="sendGatewayEvent('PageView', 0)">Send PageView ($0)</button>
+          <button class="btn btn-outline btn-sm" onclick="sendGatewayEvent('ViewContent', 49.99)">Send ViewContent ($49.99)</button>
+          <button class="btn btn-outline btn-sm" onclick="sendGatewayEvent('AddToCart', 89.99)">Send AddToCart ($89.99)</button>
+          <button class="btn btn-primary btn-sm" onclick="sendGatewayEvent('Purchase', 149.99)">Send Purchase ($149.99)</button>
+          <button class="btn btn-outline btn-sm" onclick="sendGatewayEvent('Purchase', 75.00)">Send Purchase ($75.00) — filtered!</button>
+        </div>
+
+        <div id="test-mode-notice" style="margin-top:12px; padding:8px 12px; background:#fde8e8; border-radius:4px; font-size:.78rem; color:var(--red);">
+          &#9888; Test mode is ON — events go to test endpoint only, not production
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Issues Reference -->
+  <div class="card mt-24">
+    <div class="card-body">
+      <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+      <table class="issue-table">
+        <thead><tr><th>Issue</th><th>Detail</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">Gateway misconfiguration</span></td>
+            <td>Events sent with wrong <code>dataset_id: 987654321</code></td>
+            <td>Events go to wrong pixel/dataset — no data in Events Manager</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Test mode left on</span></td>
+            <td><code>test_event_code</code> still present in production config</td>
+            <td>Production events treated as test — not used for optimization</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Partial user data</span></td>
+            <td>Only <code>client_ip_address</code> sent, no <code>em</code>/<code>ph</code></td>
+            <td>Very poor match rates</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Event filtering too aggressive</span></td>
+            <td>Gateway filters out events with value &lt; $100</td>
+            <td>Legitimate conversions lost; skewed optimization</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Gateway Event Log</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:260px; overflow-y:auto;">
+        <span style="color:#888;">// Send events above to see gateway processing simulation...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  GatewayShop &mdash; Meta Ads Test Site 08 &mdash; CAPI Gateway Issues &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  let testModeOn = true;
+
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `<span style="color:${c}">[${ts}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function toggleTestMode() {
+    testModeOn = document.getElementById('test-mode-toggle').checked;
+    document.getElementById('test-mode-notice').style.display = testModeOn ? 'block' : 'none';
+    log(testModeOn
+      ? `// ⚠ Test mode turned ON — events will NOT count in production`
+      : `// Test mode turned OFF — but dataset_id is still wrong!`,
+      testModeOn ? '#ff4444' : '#ff8800');
+  }
+
+  function sendGatewayEvent(name, value) {
+    log(`// Sending ${name} (value: $${value}) through gateway...`, '#888');
+    log(`POST https://graph.facebook.com/v18.0/987654321/events  // ⚠ ISSUE: Wrong dataset_id`, '#ff4444');
+    log(`{`);
+    log(`  "event_name": "${name}",`);
+    log(`  "event_time": ${Math.floor(Date.now() / 1000)},`);
+
+    if (testModeOn) {
+      log(`  "test_event_code": "TEST12345",  // ⚠ ISSUE: Test mode active in production`, '#ff4444');
+    }
+
+    log(`  "user_data": {`);
+    log(`    "client_ip_address": "203.0.113.42"  // ⚠ ISSUE: Only IP sent, no em/ph/external_id`, '#ff8800');
+    log(`  },`);
+    log(`  "custom_data": { "value": ${value}, "currency": "USD" }`);
+    log(`}`);
+
+    // Simulate event filtering
+    if (value > 0 && value < 100) {
+      log(`// ⚠ ISSUE: Gateway filter BLOCKED this event — value $${value} < $100 threshold`, '#ff4444');
+    } else if (value === 0) {
+      log(`// ⚠ ISSUE: Gateway filter BLOCKED PageView — no value`, '#ff8800');
+    } else {
+      log(`// Event passed filter (value $${value} >= $100) — but still going to wrong dataset`, '#ff8800');
+    }
+  }
+</script>
+
+</body>
+</html>

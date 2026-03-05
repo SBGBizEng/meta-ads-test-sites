@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnHub — Pixel Setup Mistakes</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .pixel-status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 24px 0; }
+    .pixel-status-card {
+      background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 20px; border-left: 4px solid var(--gray-200);
+    }
+    .pixel-status-card.ok     { border-left-color: var(--green); }
+    .pixel-status-card.warn   { border-left-color: var(--orange); }
+    .pixel-status-card.error  { border-left-color: var(--red); }
+    .pixel-status-card h4 { font-size: .9rem; font-weight: 700; margin-bottom: 6px; }
+    .pixel-status-card p  { font-size: .8rem; color: var(--gray-700); }
+    .pixel-id-badge { font-family: monospace; font-size: .75rem; background: #f0f0f0; padding: 2px 6px; border-radius: 3px; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .82rem; font-family: monospace; }
+    .course-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .course-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    .course-info { padding: 16px; }
+    .course-title { font-weight: 700; margin-bottom: 4px; }
+    .course-meta { font-size: .8rem; color: var(--gray-700); }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">LearnHub</a>
+  <span class="badge">Site 03 · Pixel Setup Mistakes</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates common pixel setup mistakes — duplicate installs, wrong page events, consent blocking, and missing events.
+</div>
+
+<!-- HERO / HOMEPAGE (ViewContent fires here — wrong!) -->
+<div class="hero" style="padding:48px 24px;">
+  <h1>Learn New Skills Online</h1>
+  <p>Thousands of expert-led courses in tech, business, design, and more.</p>
+  <a href="#courses" class="btn btn-white">Browse Courses</a>
+  <!-- ISSUE: ViewContent fires on homepage, not on a product/course page -->
+  <div style="margin-top:16px; background:rgba(255,100,0,.2); border-radius:6px; padding:8px 14px; font-size:.8rem; display:inline-block;">
+    &#9888; ViewContent fires here on the homepage — should only fire on course detail pages
+  </div>
+</div>
+
+<!-- Pixel Status Panel -->
+<div class="container section">
+  <h2 class="section-title">Pixel Installation Status</h2>
+  <p class="section-sub">Diagnostic view of what's happening with the pixel on this page.</p>
+
+  <div class="pixel-status-grid">
+    <div class="pixel-status-card error">
+      <h4>&#128274; Pixel Instance #1</h4>
+      <p>Pixel ID: <span class="pixel-id-badge">1234567890</span></p>
+      <p style="margin-top:6px;">Loaded in <code>&lt;head&gt;</code> — base code present.</p>
+    </div>
+    <div class="pixel-status-card error">
+      <h4>&#128274; Pixel Instance #2 (Duplicate!)</h4>
+      <p>Pixel ID: <span class="pixel-id-badge">1234567890</span></p>
+      <p style="margin-top:6px;">Same pixel loaded again via GTM — causes double-counting.</p>
+    </div>
+    <div class="pixel-status-card warn">
+      <h4>&#128683; Consent Manager</h4>
+      <p>Pixel base code loaded but <strong>events blocked</strong> by OneTrust consent manager — user hasn't accepted.</p>
+    </div>
+    <div class="pixel-status-card warn">
+      <h4>&#9888; ViewContent on Homepage</h4>
+      <p>ViewContent fires on <code>/</code> (homepage) instead of <code>/courses/:id</code> — wrong page trigger.</p>
+    </div>
+  </div>
+
+  <!-- Courses Grid -->
+  <h2 class="section-title mt-24" id="courses">Featured Courses</h2>
+  <p class="section-sub">Clicking a course would be where ViewContent should fire — but it doesn't.</p>
+
+  <div class="grid-3">
+    <div class="course-card">
+      <div class="course-img" style="background:#e8f0fe;">&#128187;</div>
+      <div class="course-info">
+        <div class="course-title">Python for Beginners</div>
+        <div class="course-meta">42 lessons &middot; 8.5 hrs &middot; $49.99</div>
+        <button class="btn btn-primary btn-sm mt-16" onclick="simulateCourseClick('COURSE_PY01', 49.99)">View Course</button>
+        <p style="font-size:.72rem; color:var(--red); margin-top:6px;">&#10060; No ViewContent fires here</p>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-img" style="background:#fef3e2;">&#128200;</div>
+      <div class="course-info">
+        <div class="course-title">Digital Marketing Masterclass</div>
+        <div class="course-meta">60 lessons &middot; 12 hrs &middot; $79.99</div>
+        <button class="btn btn-primary btn-sm mt-16" onclick="simulateCourseClick('COURSE_MKT02', 79.99)">View Course</button>
+        <p style="font-size:.72rem; color:var(--red); margin-top:6px;">&#10060; No ViewContent fires here</p>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-img" style="background:#e6f9f0;">&#127775;</div>
+      <div class="course-info">
+        <div class="course-title">UX Design Fundamentals</div>
+        <div class="course-meta">35 lessons &middot; 6 hrs &middot; $59.99</div>
+        <button class="btn btn-primary btn-sm mt-16" onclick="simulateCourseClick('COURSE_UX03', 59.99)">View Course</button>
+        <p style="font-size:.72rem; color:var(--red); margin-top:6px;">&#10060; No ViewContent fires here</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issues Reference -->
+  <div class="card mt-24">
+    <div class="card-body">
+      <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+      <table class="issue-table">
+        <thead><tr><th>Issue</th><th>What's Happening</th><th>Expected Behaviour</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">Wrong page fires</span></td>
+            <td>ViewContent fires on homepage <code>/</code></td>
+            <td>Should fire on <code>/courses/:id</code> only</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Duplicate pixel</span></td>
+            <td>Same Pixel ID loaded twice (head + GTM)</td>
+            <td>Single base code install</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Consent blocking</span></td>
+            <td>Pixel loads but events blocked by consent manager</td>
+            <td>Events fire only after consent granted</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Missing events</span></td>
+            <td>Only PageView fires; no AddToCart, InitiateCheckout, Purchase</td>
+            <td>Full funnel event coverage</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated Pixel Event Log</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:260px; overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Consent Banner -->
+<div class="consent-banner" id="consent-banner">
+  <p>We use cookies and tracking technologies to improve your experience. Our pixel is loaded but <strong>events are currently blocked</strong> pending your consent.</p>
+  <div class="consent-actions">
+    <button class="btn btn-white btn-sm" onclick="acceptConsent()">Accept All</button>
+    <button class="btn btn-outline btn-sm" style="color:#fff; border-color:#fff;" onclick="rejectConsent()">Reject</button>
+  </div>
+</div>
+
+<footer>
+  LearnHub &mdash; Meta Ads Test Site 03 &mdash; Basic Pixel Setup Mistakes &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  let consentGranted = false;
+
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `<span style="color:${c}">[${ts}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  // ISSUE 1: PageView fires immediately
+  log(`fbq('track', 'PageView');  // Pixel Instance #1`);
+  // ISSUE 2: Duplicate pixel fires same event
+  log(`fbq('track', 'PageView');  // ⚠ ISSUE: Pixel Instance #2 (duplicate via GTM) — double counting!`, '#ff8800');
+  // ISSUE 3: ViewContent fires on homepage
+  log(`fbq('track', 'ViewContent', { content_name: 'Homepage' });  // ⚠ ISSUE: Should NOT fire on homepage`, '#ff4444');
+  log(`// ⚠ ISSUE: Consent manager active — subsequent events BLOCKED until user accepts`, '#ff8800');
+
+  function simulateCourseClick(id, price) {
+    if (!consentGranted) {
+      log(`// ⚠ ISSUE: ViewContent would fire for ${id} but BLOCKED by consent manager`, '#ff4444');
+      alert('Consent not granted — pixel events are blocked. Accept cookies to simulate event firing.');
+      return;
+    }
+    log(`// ⚠ ISSUE: No ViewContent fires on course click — event not implemented`, '#ff4444');
+    alert('No ViewContent event fires here — this is an intentional missing event issue.');
+  }
+
+  function acceptConsent() {
+    consentGranted = true;
+    document.getElementById('consent-banner').style.display = 'none';
+    log(`// User accepted consent — pixel events now unblocked`, '#00c851');
+    log(`fbq('consent', 'grant');`);
+  }
+
+  function rejectConsent() {
+    consentGranted = false;
+    document.getElementById('consent-banner').style.display = 'none';
+    log(`// User rejected consent — pixel events remain blocked`, '#ff4444');
+    log(`fbq('consent', 'revoke');`);
+  }
+</script>
+
+</body>
+</html>

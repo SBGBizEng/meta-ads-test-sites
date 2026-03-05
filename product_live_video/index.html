@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LiveShop — Live Video Shopping Test</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .live-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+    @media(max-width:768px){ .live-layout { grid-template-columns: 1fr; } }
+    .video-wrap { position: relative; }
+    .product-overlay {
+      position: absolute; bottom: 16px; left: 16px; right: 16px;
+      background: rgba(0,0,0,.7); border-radius: var(--radius); padding: 12px 16px;
+      color: var(--white); display: flex; align-items: center; gap: 12px;
+    }
+    .product-overlay .overlay-img { font-size: 2rem; }
+    .product-overlay .overlay-info { flex: 1; }
+    .product-overlay .overlay-name { font-weight: 700; font-size: .88rem; }
+    .product-overlay .overlay-price { font-size: .82rem; opacity: .9; }
+    .product-overlay .overlay-tag-status { font-size: .7rem; }
+    .chat-panel { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .chat-header { background: var(--gray-900); color: var(--white); padding: 12px 16px; font-size: .88rem; font-weight: 700; }
+    .chat-messages { height: 200px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .chat-msg { font-size: .78rem; }
+    .chat-msg .msg-user { font-weight: 700; color: var(--blue); }
+    .chat-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--gray-200); }
+    .chat-input input { flex: 1; padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 20px; font-size: .82rem; }
+    .product-shelf { display: flex; gap: 12px; overflow-x: auto; padding: 4px 0; }
+    .shelf-item {
+      flex-shrink: 0; width: 100px; background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 10px; text-align: center; cursor: pointer;
+      border: 2px solid transparent; transition: border-color .15s;
+    }
+    .shelf-item:hover { border-color: var(--blue); }
+    .shelf-item.active { border-color: var(--blue); background: #e8f0fe; }
+    .shelf-item.wrong-id { border-color: var(--red); }
+    .shelf-item .shelf-emoji { font-size: 1.6rem; }
+    .shelf-item .shelf-name { font-size: .7rem; font-weight: 700; margin-top: 4px; }
+    .shelf-item .shelf-id { font-size: .62rem; color: #999; font-family: monospace; }
+    .replay-notice { background: #fff3cd; border-radius: var(--radius); padding: 12px 16px; font-size: .82rem; color: #856404; margin-top: 12px; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .78rem; font-family: monospace; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">LiveShop</a>
+  <span class="badge">Site 11 · Live Video Shopping Issues</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates live video shopping issues — missing product tags, events not firing during live, replay tracking broken, wrong content_ids.
+</div>
+
+<div class="hero" style="padding:40px 24px;">
+  <h1>LiveShop — Live Commerce Experience</h1>
+  <p>Shop products in real-time during live streams. Tap to buy instantly.</p>
+</div>
+
+<div class="container section">
+  <div class="live-layout">
+
+    <!-- Video Player -->
+    <div>
+      <h2 class="section-title">Live Stream</h2>
+      <p class="section-sub">Simulated live shopping stream — click products to see what events fire (or don't).</p>
+
+      <div class="video-wrap">
+        <div class="video-placeholder" style="min-height:320px;">
+          <div class="live-badge" id="live-badge">LIVE</div>
+          <div class="play-btn" onclick="togglePlayback()">&#9654;</div>
+          <p style="font-size:.88rem; opacity:.8;" id="stream-status">Click to start stream</p>
+
+          <!-- Product overlay — ISSUE: no product tags initially -->
+          <div class="product-overlay" id="product-overlay" style="display:none;">
+            <span class="overlay-img" id="overlay-emoji">&#128084;</span>
+            <div class="overlay-info">
+              <div class="overlay-name" id="overlay-name">Product Name</div>
+              <div class="overlay-price" id="overlay-price">$0.00</div>
+              <div class="overlay-tag-status" id="overlay-tag-status"></div>
+            </div>
+            <button class="btn btn-white btn-sm" onclick="buyNow()">Buy Now</button>
+          </div>
+        </div>
+
+        <!-- Product Shelf -->
+        <div style="margin-top:16px;">
+          <h4 style="font-size:.88rem; font-weight:700; margin-bottom:10px;">Products in Stream</h4>
+          <div class="product-shelf">
+            <div class="shelf-item" id="shelf-1" onclick="showProduct(1)">
+              <div class="shelf-emoji">&#128084;</div>
+              <div class="shelf-name">Air Runner</div>
+              <div class="shelf-id">Shown: SHOE_LIVE_01</div>
+              <div class="shelf-id" style="color:var(--red);">Tagged: SHOE_CATALOG_99</div>
+            </div>
+            <div class="shelf-item" id="shelf-2" onclick="showProduct(2)">
+              <div class="shelf-emoji">&#128083;</div>
+              <div class="shelf-name">Tote Bag</div>
+              <div class="shelf-id">Shown: BAG_LIVE_02</div>
+              <div class="shelf-id" style="color:var(--green);">Tagged: BAG_LIVE_02 &#10003;</div>
+            </div>
+            <div class="shelf-item" id="shelf-3" onclick="showProduct(3)">
+              <div class="shelf-emoji">&#128081;</div>
+              <div class="shelf-name">Wool Hat</div>
+              <div class="shelf-id">Shown: HAT_LIVE_03</div>
+              <div class="shelf-id" style="color:var(--orange);">Not tagged &#9888;</div>
+            </div>
+            <div class="shelf-item" id="shelf-4" onclick="showProduct(4)">
+              <div class="shelf-emoji">&#128086;</div>
+              <div class="shelf-name">Denim Shorts</div>
+              <div class="shelf-id">Shown: SHORT_LIVE_04</div>
+              <div class="shelf-id" style="color:var(--red);">Tagged: SHORT_OLD_88</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Replay Notice -->
+        <div class="replay-notice">
+          &#9888; <strong>Replay Mode:</strong> When watching the replay, ViewContent events do not fire — tracking only works during the live stream.
+          <button class="btn btn-outline btn-sm mt-8" onclick="simulateReplay()" style="display:block;">Simulate Replay View</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Chat + Issues -->
+    <div>
+      <!-- Live Chat -->
+      <div class="chat-panel mb-24">
+        <div class="chat-header">&#128172; Live Chat</div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg"><span class="msg-user">@sarah_m:</span> Love this shoe! 😍</div>
+          <div class="chat-msg"><span class="msg-user">@jake_r:</span> What's the price?</div>
+          <div class="chat-msg"><span class="msg-user">@host:</span> $129.99 — tap to buy!</div>
+        </div>
+        <div class="chat-input">
+          <input type="text" id="chat-input" placeholder="Say something..." onkeydown="if(event.key==='Enter') sendChat()" />
+          <button class="btn btn-primary btn-sm" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+
+      <!-- Issues Reference -->
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">&#9888; Intentional Issues</h3>
+          <table class="issue-table">
+            <thead><tr><th>Issue</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="tag tag-red">Missing product tags</span></td>
+                <td>Wool Hat has no product overlay/tagging in stream</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">Events not firing live</span></td>
+                <td>ViewContent doesn't fire when products are shown</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">Replay tracking broken</span></td>
+                <td>Events only fire live, not on video replay</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">Wrong content_ids</span></td>
+                <td>Air Runner tagged as <code>SHOE_CATALOG_99</code> but shown as <code>SHOE_LIVE_01</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated Pixel Event Log</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:260px; overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  LiveShop &mdash; Meta Ads Test Site 11 &mdash; Live Video Shopping Issues &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  let isLive = false;
+  let currentProduct = null;
+
+  const products = {
+    1: { emoji: '&#128084;', name: 'Air Runner', price: '$129.99', shownId: 'SHOE_LIVE_01', taggedId: 'SHOE_CATALOG_99', issue: 'wrong_id' },
+    2: { emoji: '&#128083;', name: 'Tote Bag',   price: '$49.99',  shownId: 'BAG_LIVE_02',  taggedId: 'BAG_LIVE_02',     issue: null },
+    3: { emoji: '&#128081;', name: 'Wool Hat',   price: '$34.99',  shownId: 'HAT_LIVE_03',  taggedId: null,              issue: 'not_tagged' },
+    4: { emoji: '&#128086;', name: 'Denim Shorts', price: '$59.99', shownId: 'SHORT_LIVE_04', taggedId: 'SHORT_OLD_88',  issue: 'wrong_id' },
+  };
+
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `<span style="color:${c}">[${ts}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function togglePlayback() {
+    isLive = !isLive;
+    document.getElementById('stream-status').textContent = isLive ? 'LIVE — Stream Active' : 'Stream Paused';
+    document.getElementById('live-badge').style.background = isLive ? 'var(--red)' : '#888';
+    log(isLive ? `// Stream started — LIVE` : `// Stream paused`, '#888');
+    if (isLive) log(`fbq('track', 'PageView');  // Only PageView fires on stream start`, '#888');
+  }
+
+  function showProduct(id) {
+    const p = products[id];
+    currentProduct = p;
+
+    document.querySelectorAll('.shelf-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`shelf-${id}`).classList.add('active');
+
+    document.getElementById('product-overlay').style.display = 'flex';
+    document.getElementById('overlay-emoji').innerHTML = p.emoji;
+    document.getElementById('overlay-name').textContent = p.name;
+    document.getElementById('overlay-price').textContent = p.price;
+
+    if (p.issue === 'not_tagged') {
+      document.getElementById('overlay-tag-status').innerHTML = '&#9888; Not tagged in catalog';
+      document.getElementById('overlay-tag-status').style.color = 'orange';
+    } else if (p.issue === 'wrong_id') {
+      document.getElementById('overlay-tag-status').innerHTML = `&#9888; Tagged as ${p.taggedId}`;
+      document.getElementById('overlay-tag-status').style.color = '#ff8800';
+    } else {
+      document.getElementById('overlay-tag-status').innerHTML = '&#10003; Correctly tagged';
+      document.getElementById('overlay-tag-status').style.color = '#00c851';
+    }
+
+    // ISSUE: ViewContent doesn't fire when product is shown
+    log(`// Product shown: ${p.name} (${p.shownId})`);
+    log(`// ⚠ ISSUE: No ViewContent event fires when product appears in stream`, '#ff4444');
+
+    if (p.issue === 'not_tagged') {
+      log(`// ⚠ ISSUE: ${p.name} has no product tag — cannot link to catalog`, '#ff4444');
+    } else if (p.issue === 'wrong_id') {
+      log(`// ⚠ ISSUE: Product shown as '${p.shownId}' but tagged as '${p.taggedId}' — ID mismatch`, '#ff4444');
+    }
+  }
+
+  function buyNow() {
+    if (!currentProduct) return;
+    const p = currentProduct;
+    const idToUse = p.taggedId || p.shownId;
+    log(`fbq('track', 'Purchase', { content_ids: ['${idToUse}'], value: ${p.price.replace('$','')}, currency: 'USD' });`);
+    if (p.issue === 'wrong_id') log(`  ⚠ ISSUE: Purchase uses tagged ID '${p.taggedId}' ≠ actual product '${p.shownId}'`, '#ff4444');
+    if (p.issue === 'not_tagged') log(`  ⚠ ISSUE: No catalog ID available — purchase can't be matched to catalog`, '#ff4444');
+    addChat('system', `${p.name} purchased! 🎉`);
+  }
+
+  function simulateReplay() {
+    log(`// User watching REPLAY of stream`, '#888');
+    log(`// ⚠ ISSUE: No ViewContent events fire during replay — tracking only worked live`, '#ff4444');
+    log(`// ⚠ ISSUE: Product interactions in replay are completely untracked`, '#ff4444');
+    document.getElementById('live-badge').textContent = 'REPLAY';
+    document.getElementById('live-badge').style.background = '#888';
+    document.getElementById('stream-status').textContent = 'Watching Replay — Events Disabled';
+  }
+
+  function addChat(user, msg) {
+    const el = document.getElementById('chat-messages');
+    el.innerHTML += `<div class="chat-msg"><span class="msg-user">@${user}:</span> ${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function sendChat() {
+    const input = document.getElementById('chat-input');
+    if (input.value.trim()) {
+      addChat('you', input.value);
+      input.value = '';
+    }
+  }
+
+  log(`fbq('track', 'PageView');`, '#888');
+</script>
+
+</body>
+</html>

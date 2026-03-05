@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B2B Solutions — Lead Ads + CAPI Test</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .crm-pipeline {
+      display: flex; gap: 0; margin: 24px 0; overflow-x: auto;
+    }
+    .pipeline-stage {
+      flex: 1; min-width: 110px; text-align: center; padding: 16px 8px;
+      background: var(--white); border: 1px solid var(--gray-200);
+      position: relative; font-size: .8rem;
+    }
+    .pipeline-stage .stage-count {
+      font-size: 1.4rem; font-weight: 700; color: var(--blue); display: block;
+    }
+    .pipeline-stage.missing { background: #fde8e8; border-color: var(--red); }
+    .pipeline-stage.missing .stage-count { color: var(--red); }
+    .pipeline-stage:not(:last-child)::after {
+      content: '→'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+      font-size: 1rem; color: var(--blue); z-index: 1;
+    }
+    .capi-flow { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+    .capi-event {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--white); border-radius: var(--radius);
+      padding: 12px 16px; box-shadow: var(--shadow); font-size: .85rem;
+    }
+    .capi-event .event-icon { font-size: 1.2rem; }
+    .capi-event .event-name { font-weight: 700; flex: 1; }
+    .capi-event .event-status { font-size: .75rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+    .status-ok   { background: #e6f9f0; color: #27ae60; }
+    .status-warn { background: #fef3e2; color: #d35400; }
+    .status-err  { background: #fde8e8; color: #c0392b; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .82rem; font-family: monospace; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">B2B Solutions Co.</a>
+  <span class="badge">Site 02 · Lead Ads + CAPI for CRM</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates B2B lead gen with CAPI + CRM integration issues. No real pixel or CAPI endpoint is called.
+</div>
+
+<!-- HERO -->
+<div class="hero" style="padding:48px 24px;">
+  <h1>Grow Your Business with Enterprise Solutions</h1>
+  <p>Join 2,000+ companies using our platform to streamline operations and drive revenue.</p>
+  <a href="#lead-form" class="btn btn-white">Get a Free Demo</a>
+</div>
+
+<div class="container section">
+  <div style="display:grid; grid-template-columns:1fr 380px; gap:40px; align-items:start;">
+
+    <!-- Left: CRM Pipeline + CAPI Flow -->
+    <div>
+      <h2 class="section-title">CRM Pipeline Overview</h2>
+      <p class="section-sub">Leads flow through stages — but downstream CAPI events are missing.</p>
+
+      <div class="crm-pipeline">
+        <div class="pipeline-stage">
+          <span class="stage-count">142</span>
+          Lead Captured
+        </div>
+        <div class="pipeline-stage">
+          <span class="stage-count">89</span>
+          Contacted
+        </div>
+        <div class="pipeline-stage missing">
+          <span class="stage-count">&#10060;</span>
+          Scheduled
+          <div style="font-size:.7rem; color:var(--red); margin-top:4px;">No CAPI event</div>
+        </div>
+        <div class="pipeline-stage missing">
+          <span class="stage-count">&#10060;</span>
+          Qualified
+          <div style="font-size:.7rem; color:var(--red); margin-top:4px;">No CAPI event</div>
+        </div>
+        <div class="pipeline-stage missing">
+          <span class="stage-count">&#10060;</span>
+          Converted
+          <div style="font-size:.7rem; color:var(--red); margin-top:4px;">No CAPI event</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem; font-weight:700; margin:24px 0 12px;">CAPI Event Status</h3>
+      <div class="capi-flow">
+        <div class="capi-event">
+          <span class="event-icon">&#128100;</span>
+          <span class="event-name">Lead</span>
+          <span class="event-status status-warn">Fires — but missing <code>lead_id</code></span>
+        </div>
+        <div class="capi-event">
+          <span class="event-icon">&#128222;</span>
+          <span class="event-name">Contact</span>
+          <span class="event-status status-err">Not firing</span>
+        </div>
+        <div class="capi-event">
+          <span class="event-icon">&#128197;</span>
+          <span class="event-name">Schedule</span>
+          <span class="event-status status-err">Not firing</span>
+        </div>
+        <div class="capi-event">
+          <span class="event-icon">&#9989;</span>
+          <span class="event-name">Subscribe / Converted Lead</span>
+          <span class="event-status status-err">Not firing</span>
+        </div>
+      </div>
+
+      <!-- Issues table -->
+      <div class="card mt-24">
+        <div class="card-body">
+          <h3 class="card-title">&#9888; Intentional Issues</h3>
+          <table class="issue-table">
+            <thead><tr><th>Issue</th><th>Detail</th><th>Impact</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="tag tag-red">Missing lead_id</span></td>
+                <td>CAPI Lead event omits <code>lead_id</code> from Instant Form</td>
+                <td>Can't match leads back to ad</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-orange">Delayed events</span></td>
+                <td>Events sent 5+ days after submission</td>
+                <td>Outside attribution window</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">No downstream events</span></td>
+                <td>No Contact, Schedule, or Subscribe events</td>
+                <td>Funnel blind after lead capture</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-orange">PII hashing issues</span></td>
+                <td>Email sent unhashed or double-hashed</td>
+                <td>Poor match rate</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Lead Form -->
+    <div id="lead-form">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">&#128203; Request a Free Demo</h3>
+          <p style="font-size:.85rem; color:var(--gray-700); margin-bottom:20px;">Fill out the form and our team will reach out within 24 hours.</p>
+
+          <form onsubmit="submitLead(event)">
+            <div class="form-group">
+              <label>First Name *</label>
+              <input type="text" id="fname" placeholder="Jane" required />
+            </div>
+            <div class="form-group">
+              <label>Last Name *</label>
+              <input type="text" id="lname" placeholder="Smith" required />
+            </div>
+            <div class="form-group">
+              <label>Work Email *</label>
+              <input type="email" id="email" placeholder="jane@company.com" required />
+            </div>
+            <div class="form-group">
+              <label>Company</label>
+              <input type="text" id="company" placeholder="Acme Corp" />
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="phone" placeholder="+1 555 000 0000" />
+            </div>
+            <div class="form-group">
+              <label>Company Size</label>
+              <select id="size">
+                <option value="">Select...</option>
+                <option>1–10 employees</option>
+                <option>11–50 employees</option>
+                <option>51–200 employees</option>
+                <option>200+ employees</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Request Demo</button>
+          </form>
+
+          <div id="lead-result" style="display:none; margin-top:16px; padding:12px; background:#e6f9f0; border-radius:var(--radius); font-size:.85rem; color:#27ae60;">
+            &#9989; Lead submitted! Check the event log for CAPI payload issues.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated CAPI Event Log</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:260px; overflow-y:auto;">
+        <span style="color:#888;">// Submit the form to see CAPI payload simulation...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  B2B Solutions Co. &mdash; Meta Ads Test Site 02 &mdash; Lead Ads + CAPI for CRM &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `\n<span style="color:${c}">[${ts}] ${msg}</span>`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function submitLead(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+
+    document.getElementById('lead-result').style.display = 'block';
+
+    // Simulate CAPI Lead event — intentionally missing lead_id, email not hashed
+    log(`// CAPI Lead Event Fired (server-side)`, '#888');
+    log(`POST /conversions/events`);
+    log(`{`);
+    log(`  "event_name": "Lead",`);
+    log(`  "event_time": ${Math.floor(Date.now() / 1000)},`);
+    log(`  "user_data": {`);
+    log(`    "em": "${email}",   // ⚠ ISSUE: email NOT hashed (should be SHA256)`, '#ff8800');
+    log(`    "ph": "${phone || 'MISSING'}"   // ⚠ ISSUE: phone not normalized/hashed`, '#ff8800');
+    log(`  },`);
+    log(`  // ⚠ ISSUE: lead_id missing — cannot match to Instant Form submission`, '#ff4444');
+    log(`  // ⚠ ISSUE: No Contact/Schedule/Subscribe events will follow`, '#ff4444');
+    log(`}`);
+    log(`// NOTE: Downstream CRM events will be sent 5+ days late (outside attribution window)`, '#ff8800');
+  }
+
+  log(`// PageView fired on load`, '#888');
+</script>
+
+</body>
+</html>

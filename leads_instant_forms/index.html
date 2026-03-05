@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeadGen Pro — Instant Form Test</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .form-progress { display: flex; gap: 0; margin-bottom: 24px; }
+    .form-step {
+      flex: 1; text-align: center; padding: 10px 4px; font-size: .75rem; font-weight: 700;
+      background: var(--gray-200); color: var(--gray-700); position: relative;
+    }
+    .form-step.active { background: var(--blue); color: var(--white); }
+    .form-step.done   { background: var(--green); color: var(--white); }
+    .form-step:not(:last-child)::after {
+      content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+      border-left: 12px solid transparent; border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+    }
+    .form-step.active:not(:last-child)::after { border-left-color: var(--blue); }
+    .form-step.done:not(:last-child)::after   { border-left-color: var(--green); }
+    .form-step:not(.active):not(.done):not(:last-child)::after { border-left-color: var(--gray-200); }
+    .instant-form-mock {
+      background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+      overflow: hidden; max-width: 480px;
+    }
+    .form-header { background: var(--blue); color: var(--white); padding: 20px; }
+    .form-header h3 { font-size: 1rem; font-weight: 700; }
+    .form-header p  { font-size: .82rem; opacity: .9; margin-top: 4px; }
+    .form-body { padding: 24px; }
+    .form-footer { padding: 16px 24px; background: var(--gray-100); border-top: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
+    .issue-note { font-size: .72rem; color: var(--red); margin-top: 4px; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .82rem; font-family: monospace; }
+    .abandonment-tracker { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+    .field-tracker-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-200); font-size: .82rem; }
+    .field-tracker-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">LeadGen Pro</a>
+  <span class="badge">Site 09 · Instant Form Issues</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates Instant Form issues — no thank-you event, missing conditional fields, no CRM webhook, no abandonment tracking.
+</div>
+
+<div class="hero" style="padding:40px 24px;">
+  <h1>Get Your Free Consultation</h1>
+  <p>Fill out the form below and our team will reach out within 24 hours.</p>
+</div>
+
+<div class="container section">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start;">
+
+    <!-- Left: Mock Instant Form -->
+    <div>
+      <h2 class="section-title">Mock Instant Form</h2>
+      <p class="section-sub">Simulates a Meta Instant Form embedded on a landing page.</p>
+
+      <div class="instant-form-mock">
+        <div class="form-header">
+          <h3>Free Consultation Request</h3>
+          <p>Takes less than 2 minutes to complete</p>
+        </div>
+
+        <div class="form-body">
+          <!-- Step Progress -->
+          <div class="form-progress">
+            <div class="form-step active" id="step-1">1. Contact</div>
+            <div class="form-step" id="step-2">2. Qualify</div>
+            <div class="form-step" id="step-3">3. Submit</div>
+          </div>
+
+          <!-- Step 1 -->
+          <div id="form-step-1">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" id="full-name" placeholder="Jane Smith" />
+            </div>
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" id="form-email" placeholder="jane@example.com" />
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="form-phone" placeholder="+1 555 000 0000" />
+            </div>
+            <p class="issue-note">&#9888; No field abandonment tracking — drop-offs invisible</p>
+          </div>
+
+          <!-- Step 2 (hidden initially) -->
+          <div id="form-step-2" style="display:none;">
+            <div class="form-group">
+              <label>Company Size</label>
+              <select id="company-size">
+                <option value="">Select...</option>
+                <option>1–10</option>
+                <option>11–50</option>
+                <option>51–200</option>
+                <option>200+</option>
+              </select>
+            </div>
+            <!-- ISSUE: Missing conditional qualifying questions -->
+            <div style="background:#fff3cd; border-radius:4px; padding:10px 12px; font-size:.8rem; color:#856404; margin-bottom:12px;">
+              &#9888; <strong>Missing conditional fields:</strong> Qualifying questions (budget, timeline, decision-maker) are not shown — form doesn't capture quality signals.
+            </div>
+            <p class="issue-note">&#9888; No conditional logic — all leads treated the same</p>
+          </div>
+
+          <!-- Step 3 (hidden initially) -->
+          <div id="form-step-3" style="display:none;">
+            <div style="text-align:center; padding:20px 0;">
+              <div style="font-size:3rem; margin-bottom:12px;">&#128203;</div>
+              <p style="font-weight:700; margin-bottom:8px;">Ready to submit?</p>
+              <p style="font-size:.85rem; color:var(--gray-700);">Click submit to complete your request.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <button class="btn btn-outline btn-sm" id="back-btn" style="visibility:hidden;" onclick="prevStep()">&#8592; Back</button>
+          <button class="btn btn-primary btn-sm" id="next-btn" onclick="nextStep()">Next &#8594;</button>
+        </div>
+      </div>
+
+      <!-- Thank you page (hidden) -->
+      <div id="thank-you" style="display:none; margin-top:16px; padding:20px; background:#e6f9f0; border-radius:var(--radius); text-align:center;">
+        <div style="font-size:2rem; margin-bottom:8px;">&#9989;</div>
+        <strong>Form submitted!</strong>
+        <p style="font-size:.85rem; margin-top:6px; color:var(--gray-700);">But no Lead pixel event fires here — and no CRM webhook is triggered.</p>
+        <p class="issue-note" style="margin-top:8px;">&#9888; No thank-you page Lead event fired &nbsp;|&nbsp; &#9888; No CRM webhook sent</p>
+      </div>
+    </div>
+
+    <!-- Right: Tracking Status + Issues -->
+    <div>
+      <!-- Abandonment Tracker -->
+      <div class="abandonment-tracker mb-24">
+        <h3 style="font-size:1rem; font-weight:700; margin-bottom:12px;">&#128202; Form Abandonment Tracker</h3>
+        <p style="font-size:.82rem; color:var(--gray-700); margin-bottom:12px;">This panel shows what <em>should</em> be tracked — but isn't.</p>
+        <div class="field-tracker-row">
+          <span>Form opened</span>
+          <span class="tag tag-green">Tracked (PageView)</span>
+        </div>
+        <div class="field-tracker-row">
+          <span>Step 1 completed</span>
+          <span class="tag tag-red">Not tracked</span>
+        </div>
+        <div class="field-tracker-row">
+          <span>Step 2 completed</span>
+          <span class="tag tag-red">Not tracked</span>
+        </div>
+        <div class="field-tracker-row">
+          <span>Form abandoned at Step 1</span>
+          <span class="tag tag-red">Not tracked</span>
+        </div>
+        <div class="field-tracker-row">
+          <span>Form abandoned at Step 2</span>
+          <span class="tag tag-red">Not tracked</span>
+        </div>
+        <div class="field-tracker-row">
+          <span>Form submitted (Lead event)</span>
+          <span class="tag tag-red">Not tracked</span>
+        </div>
+        <div class="field-tracker-row">
+          <span>CRM webhook triggered</span>
+          <span class="tag tag-red">Not configured</span>
+        </div>
+      </div>
+
+      <!-- Issues Reference -->
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+          <table class="issue-table">
+            <thead><tr><th>Issue</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="tag tag-red">No thank-you event</span></td>
+                <td>Form submits but no <code>Lead</code> event fires on confirmation</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-orange">Missing conditional fields</span></td>
+                <td>Form doesn't capture qualifying questions (budget, timeline)</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">No CRM webhook</span></td>
+                <td>Leads not flowing to CRM — manual export only</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-orange">No abandonment tracking</span></td>
+                <td>No way to see at which step users drop off</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated Event Log</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:260px; overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  LeadGen Pro &mdash; Meta Ads Test Site 09 &mdash; Instant Form Issues &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  let currentStep = 1;
+
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `<span style="color:${c}">[${ts}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function nextStep() {
+    if (currentStep < 3) {
+      log(`// Step ${currentStep} completed — no tracking event fires`, '#ff8800');
+      currentStep++;
+      showStep(currentStep);
+    } else {
+      submitForm();
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 1) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  }
+
+  function showStep(step) {
+    [1,2,3].forEach(s => {
+      document.getElementById(`form-step-${s}`).style.display = s === step ? 'block' : 'none';
+      const el = document.getElementById(`step-${s}`);
+      if (s < step) el.className = 'form-step done';
+      else if (s === step) el.className = 'form-step active';
+      else el.className = 'form-step';
+    });
+    document.getElementById('back-btn').style.visibility = step > 1 ? 'visible' : 'hidden';
+    document.getElementById('next-btn').textContent = step === 3 ? 'Submit' : 'Next →';
+  }
+
+  function submitForm() {
+    document.querySelector('.instant-form-mock').style.display = 'none';
+    document.getElementById('thank-you').style.display = 'block';
+    log(`// Form submitted — thank you page shown`);
+    log(`// ⚠ ISSUE: No Lead event fires on form submission`, '#ff4444');
+    log(`// ⚠ ISSUE: No CRM webhook triggered — lead exists only in Meta, not in CRM`, '#ff4444');
+    log(`// ⚠ ISSUE: No abandonment data collected for any step`, '#ff4444');
+    log(`// What SHOULD fire: fbq('track', 'Lead', { lead_id: '...', content_name: 'Free Consultation' });`, '#888');
+  }
+
+  log(`fbq('track', 'PageView');  // Only event that fires`, '#888');
+  log(`// ⚠ ISSUE: No subsequent events configured for this form`, '#ff8800');
+</script>
+
+</body>
+</html>

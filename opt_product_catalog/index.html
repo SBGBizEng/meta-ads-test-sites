@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FeedShowcase — Catalog Optimization Test</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .catalog-table-wrap { overflow-x: auto; }
+    .catalog-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .catalog-table th { background: var(--gray-900); color: var(--white); padding: 10px 12px; text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+    .catalog-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-200); vertical-align: middle; }
+    .catalog-table tr:nth-child(even) td { background: var(--gray-100); }
+    .field-ok   { color: var(--green); font-weight: 700; }
+    .field-err  { color: var(--red);   font-weight: 700; }
+    .field-warn { color: var(--orange); font-weight: 700; }
+    .img-thumb { width: 48px; height: 48px; border-radius: 4px; object-fit: cover; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .img-broken { background: #fde8e8; border: 1px dashed var(--red); }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .78rem; font-family: monospace; }
+    .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; font-size: .8rem; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">FeedShowcase</a>
+  <span class="badge">Site 06 · Catalog Optimization Issues</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates catalog feed issues — OOS items showing as in-stock, missing GTIN/MPN, broken image URLs, stale prices, missing product_type.
+</div>
+
+<div class="hero" style="padding:40px 24px;">
+  <h1>Product Feed Showcase</h1>
+  <p>Displaying your catalog — with intentional data quality issues for Meta Ads testing.</p>
+</div>
+
+<div class="container section">
+  <h2 class="section-title">Product Catalog Feed</h2>
+  <p class="section-sub">Each row represents a product in the catalog feed. Highlighted cells indicate the intentional issues.</p>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Error — will break ads</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> Warning — hurts delivery</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> OK</div>
+  </div>
+
+  <div class="catalog-table-wrap">
+    <table class="catalog-table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Price (Feed)</th>
+          <th>Price (Website)</th>
+          <th>Availability</th>
+          <th>GTIN</th>
+          <th>MPN</th>
+          <th>product_type</th>
+          <th>Issues</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Row 1: OOS showing as in_stock -->
+        <tr>
+          <td><div class="img-thumb">&#128084;</div></td>
+          <td><code>SHOE_001</code></td>
+          <td>Classic Runner</td>
+          <td>$50.00</td>
+          <td class="field-warn">$45.00 <span class="tag tag-orange">Stale</span></td>
+          <td class="field-err">in_stock <span class="tag tag-red">Actually OOS</span></td>
+          <td class="field-ok">4901234567890</td>
+          <td class="field-ok">RUN-001-BLK</td>
+          <td class="field-err">— <span class="tag tag-orange">Missing</span></td>
+          <td><span class="tag tag-red">OOS</span> <span class="tag tag-orange">Stale price</span> <span class="tag tag-orange">No category</span></td>
+        </tr>
+        <!-- Row 2: Missing GTIN/MPN -->
+        <tr>
+          <td><div class="img-thumb">&#128083;</div></td>
+          <td><code>BAG_002</code></td>
+          <td>Canvas Weekender</td>
+          <td>$89.99</td>
+          <td class="field-ok">$89.99</td>
+          <td class="field-ok">in_stock</td>
+          <td class="field-err">— <span class="tag tag-red">Missing</span></td>
+          <td class="field-err">— <span class="tag tag-red">Missing</span></td>
+          <td class="field-ok">Bags &gt; Travel</td>
+          <td><span class="tag tag-red">No GTIN</span> <span class="tag tag-red">No MPN</span></td>
+        </tr>
+        <!-- Row 3: Bad image URL -->
+        <tr>
+          <td><div class="img-thumb img-broken">&#128247;</div></td>
+          <td><code>HAT_003</code></td>
+          <td>Bucket Hat</td>
+          <td>$29.99</td>
+          <td class="field-ok">$29.99</td>
+          <td class="field-ok">in_stock</td>
+          <td class="field-ok">4901234567891</td>
+          <td class="field-ok">HAT-003-TAN</td>
+          <td class="field-ok">Accessories &gt; Hats</td>
+          <td><span class="tag tag-red">Image 404</span></td>
+        </tr>
+        <!-- Row 4: Image too small -->
+        <tr>
+          <td><div class="img-thumb" style="background:#fef3e2;">&#128081;</div></td>
+          <td><code>SCARF_004</code></td>
+          <td>Wool Scarf</td>
+          <td>$34.99</td>
+          <td class="field-ok">$34.99</td>
+          <td class="field-ok">in_stock</td>
+          <td class="field-ok">4901234567892</td>
+          <td class="field-ok">SCRF-004-RED</td>
+          <td class="field-err">— <span class="tag tag-orange">Missing</span></td>
+          <td><span class="tag tag-orange">Image &lt;500px</span> <span class="tag tag-orange">No category</span></td>
+        </tr>
+        <!-- Row 5: Stale price only -->
+        <tr>
+          <td><div class="img-thumb" style="background:#e6f9f0;">&#128086;</div></td>
+          <td><code>PANT_005</code></td>
+          <td>Slim Chino</td>
+          <td>$79.99</td>
+          <td class="field-warn">$59.99 <span class="tag tag-orange">Sale</span></td>
+          <td class="field-ok">in_stock</td>
+          <td class="field-ok">4901234567893</td>
+          <td class="field-ok">CHNO-005-KHK</td>
+          <td class="field-ok">Clothing &gt; Bottoms</td>
+          <td><span class="tag tag-orange">Stale price</span></td>
+        </tr>
+        <!-- Row 6: Multiple issues -->
+        <tr>
+          <td><div class="img-thumb img-broken">&#128247;</div></td>
+          <td><code>JACKET_006</code></td>
+          <td>Denim Jacket</td>
+          <td>$119.99</td>
+          <td class="field-warn">$99.99 <span class="tag tag-orange">Sale</span></td>
+          <td class="field-err">in_stock <span class="tag tag-red">Actually OOS</span></td>
+          <td class="field-err">— <span class="tag tag-red">Missing</span></td>
+          <td class="field-err">— <span class="tag tag-red">Missing</span></td>
+          <td class="field-err">— <span class="tag tag-orange">Missing</span></td>
+          <td><span class="tag tag-red">OOS</span> <span class="tag tag-red">Image 404</span> <span class="tag tag-red">No GTIN</span> <span class="tag tag-orange">Stale</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Issues Reference -->
+  <div class="card mt-24">
+    <div class="card-body">
+      <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+      <table class="issue-table">
+        <thead><tr><th>Issue</th><th>Detail</th><th>Impact on Ads</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">OOS items showing</span></td>
+            <td>Feed says <code>availability: in_stock</code> but product is actually out of stock</td>
+            <td>Ads serve for unavailable products — wasted spend, bad UX</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Missing GTIN/MPN</span></td>
+            <td>Products missing standard identifiers</td>
+            <td>Hurts ad delivery and catalog matching quality</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Bad image URLs</span></td>
+            <td>Image links return 404 or images are too small (&lt;500px)</td>
+            <td>Ads rejected or show broken images</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Stale prices</span></td>
+            <td>Catalog shows $50 but website shows $45 sale price</td>
+            <td>Price discrepancy — ad disapproval risk</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Missing product_type</span></td>
+            <td>No category hierarchy in feed</td>
+            <td>Poor targeting signal for Meta's delivery system</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  FeedShowcase &mdash; Meta Ads Test Site 06 &mdash; Catalog Optimization Issues &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+</body>
+</html>

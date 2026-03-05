@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FullFunnel Co. — CAPI Implementation Test</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .dual-track { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+    @media(max-width:640px){ .dual-track { grid-template-columns: 1fr; } }
+    .track-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+    .track-card h4 { font-size: .9rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .track-label { font-size: .7rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+    .label-browser { background: #e8f0fe; color: #1a73e8; }
+    .label-server  { background: #e6f9f0; color: #27ae60; }
+    .event-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-200); font-size: .82rem; }
+    .event-row:last-child { border-bottom: none; }
+    .event-name { font-weight: 600; }
+    .event-id-badge { font-family: monospace; font-size: .72rem; background: #f0f0f0; padding: 1px 5px; border-radius: 3px; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .82rem; font-family: monospace; }
+    .funnel-step-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--gray-200); }
+    .funnel-step-row:last-child { border-bottom: none; }
+    .funnel-step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+    .funnel-step-info { flex: 1; }
+    .funnel-step-info strong { display: block; font-size: .88rem; }
+    .funnel-step-info span { font-size: .78rem; color: var(--gray-700); }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">FullFunnel Co.</a>
+  <span class="badge">Site 05 · CAPI Implementation Issues</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates CAPI implementation issues — no deduplication, missing event_id, wrong action_source, missing user data, stale event_time.
+</div>
+
+<div class="hero" style="padding:40px 24px;">
+  <h1>Full-Funnel Analytics Platform</h1>
+  <p>Track every touchpoint from first click to closed deal — with server-side precision.</p>
+  <button class="btn btn-white" onclick="startFunnel()">Start Demo Funnel</button>
+</div>
+
+<div class="container section">
+  <div style="display:grid; grid-template-columns:1fr 340px; gap:32px; align-items:start;">
+
+    <!-- Left: Funnel + Issues -->
+    <div>
+      <h2 class="section-title">Funnel Simulation</h2>
+      <p class="section-sub">Walk through the funnel steps. Each step fires both a browser pixel event AND a CAPI event — with intentional issues in each.</p>
+
+      <div class="card mb-24">
+        <div class="card-body">
+          <div class="funnel-step-row">
+            <div class="funnel-step-num">1</div>
+            <div class="funnel-step-info">
+              <strong>PageView</strong>
+              <span>Browser pixel ✓ &nbsp;|&nbsp; CAPI: <span class="tag tag-orange">Fires with wrong action_source: 'website'</span></span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="fireStep('PageView')">Fire</button>
+          </div>
+          <div class="funnel-step-row">
+            <div class="funnel-step-num">2</div>
+            <div class="funnel-step-info">
+              <strong>ViewContent</strong>
+              <span>Browser pixel ✓ &nbsp;|&nbsp; CAPI: <span class="tag tag-red">No event_id — can't deduplicate</span></span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="fireStep('ViewContent')">Fire</button>
+          </div>
+          <div class="funnel-step-row">
+            <div class="funnel-step-num">3</div>
+            <div class="funnel-step-info">
+              <strong>AddToCart</strong>
+              <span>Browser pixel ✓ &nbsp;|&nbsp; CAPI: <span class="tag tag-red">No event_id — can't deduplicate</span></span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="fireStep('AddToCart')">Fire</button>
+          </div>
+          <div class="funnel-step-row">
+            <div class="funnel-step-num">4</div>
+            <div class="funnel-step-info">
+              <strong>InitiateCheckout</strong>
+              <span>Browser pixel ✓ &nbsp;|&nbsp; CAPI: <span class="tag tag-orange">Stale event_time (server processing time)</span></span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="fireStep('InitiateCheckout')">Fire</button>
+          </div>
+          <div class="funnel-step-row">
+            <div class="funnel-step-num">5</div>
+            <div class="funnel-step-info">
+              <strong>Purchase</strong>
+              <span>Browser pixel ✓ &nbsp;|&nbsp; CAPI: <span class="tag tag-red">Both fire, no event_id = 2x counting</span></span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="fireStep('Purchase')">Fire</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Issues Table -->
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+          <table class="issue-table">
+            <thead><tr><th>Issue</th><th>Detail</th><th>Impact</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="tag tag-red">No deduplication</span></td>
+                <td>Both Pixel AND CAPI fire Purchase with no <code>event_id</code></td>
+                <td>2x conversion counting</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">Missing event_id</span></td>
+                <td>CAPI events lack <code>event_id</code> for browser dedupe</td>
+                <td>Cannot deduplicate any event</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-orange">Wrong action_source</span></td>
+                <td>Server events sent with <code>action_source: 'website'</code></td>
+                <td>Misattribution of event origin</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">Missing user data</span></td>
+                <td>CAPI events have no <code>em</code>, <code>ph</code>, <code>external_id</code></td>
+                <td>Poor match rates</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-orange">Stale event_time</span></td>
+                <td><code>event_time</code> is server processing time, not user action time</td>
+                <td>Attribution window errors</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Live Dual-Track View -->
+    <div>
+      <h3 style="font-size:1rem; font-weight:700; margin-bottom:12px;">Live Event Comparison</h3>
+      <div class="dual-track">
+        <div class="track-card">
+          <h4><span class="track-label label-browser">Browser Pixel</span></h4>
+          <div id="browser-events" style="font-size:.78rem; color:var(--gray-700);">
+            <p style="color:#999; font-size:.78rem;">No events yet</p>
+          </div>
+        </div>
+        <div class="track-card">
+          <h4><span class="track-label label-server">CAPI (Server)</span></h4>
+          <div id="server-events" style="font-size:.78rem; color:var(--gray-700);">
+            <p style="color:#999; font-size:.78rem;">No events yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated Event Log (Both Channels)</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:300px; overflow-y:auto;">
+        <span style="color:#888;">// Click funnel steps or "Start Demo Funnel" to simulate events...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  FullFunnel Co. &mdash; Meta Ads Test Site 05 &mdash; CAPI Implementation Issues &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  let browserEventCount = 0;
+  let serverEventCount = 0;
+
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `<span style="color:${c}">[${ts}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function addBrowserEvent(name, hasIssue) {
+    const el = document.getElementById('browser-events');
+    if (browserEventCount === 0) el.innerHTML = '';
+    browserEventCount++;
+    el.innerHTML += `<div class="event-row"><span class="event-name">${name}</span><span class="tag ${hasIssue ? 'tag-orange' : 'tag-green'}">${hasIssue ? 'Issue' : 'OK'}</span></div>`;
+  }
+
+  function addServerEvent(name, hasIssue) {
+    const el = document.getElementById('server-events');
+    if (serverEventCount === 0) el.innerHTML = '';
+    serverEventCount++;
+    el.innerHTML += `<div class="event-row"><span class="event-name">${name}</span><span class="tag ${hasIssue ? 'tag-red' : 'tag-green'}">${hasIssue ? 'Issue' : 'OK'}</span></div>`;
+  }
+
+  function fireStep(eventName) {
+    const userTime = Math.floor(Date.now() / 1000);
+    const serverTime = userTime + 47; // simulate 47s processing delay
+
+    // Browser pixel
+    log(`[BROWSER] fbq('track', '${eventName}', { /* no event_id */ });`);
+    addBrowserEvent(eventName, false);
+
+    // CAPI — intentional issues
+    log(`[SERVER]  POST /conversions/events {`, '#888');
+    log(`  "event_name": "${eventName}",`);
+
+    if (eventName === 'InitiateCheckout' || eventName === 'Purchase') {
+      log(`  "event_time": ${serverTime},  // ⚠ ISSUE: Server processing time (+47s), not user action time ${userTime}`, '#ff8800');
+    } else {
+      log(`  "event_time": ${userTime},`);
+    }
+
+    log(`  "action_source": "website",  // ⚠ ISSUE: Should be 'app' or proper source for server events`, '#ff8800');
+    log(`  // ⚠ ISSUE: No event_id — cannot deduplicate with browser pixel`, '#ff4444');
+    log(`  "user_data": {}  // ⚠ ISSUE: No em, ph, or external_id — poor match rate`, '#ff4444');
+    log(`}`);
+
+    if (eventName === 'Purchase') {
+      log(`  ⚠ CRITICAL: Both browser AND server fired Purchase with no event_id = 2x counting!`, '#ff4444');
+    }
+
+    addServerEvent(eventName, true);
+  }
+
+  function startFunnel() {
+    ['PageView','ViewContent','AddToCart','InitiateCheckout','Purchase'].forEach((e, i) => {
+      setTimeout(() => fireStep(e), i * 800);
+    });
+  }
+
+  log(`// Page loaded — PageView fires automatically`, '#888');
+  fireStep('PageView');
+</script>
+
+</body>
+</html>

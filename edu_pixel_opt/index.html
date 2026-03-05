@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FunnelCo — Pixel Optimization Education</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .funnel-visual { display: flex; gap: 0; margin: 24px 0; overflow-x: auto; }
+    .funnel-stage {
+      flex: 1; min-width: 100px; text-align: center; padding: 20px 8px;
+      background: var(--white); border: 1px solid var(--gray-200);
+      position: relative; cursor: pointer; transition: background .15s;
+    }
+    .funnel-stage:hover { background: #f0f4ff; }
+    .funnel-stage.active  { background: #e8f0fe; border-color: var(--blue); }
+    .funnel-stage.fired   { background: #e6f9f0; border-color: var(--green); }
+    .funnel-stage.error   { background: #fde8e8; border-color: var(--red); }
+    .funnel-stage.missing { background: #fff3cd; border-color: var(--orange); }
+    .funnel-stage:not(:last-child)::after {
+      content: '→'; position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+      font-size: 1rem; color: var(--blue); z-index: 1;
+    }
+    .funnel-stage .stage-icon { font-size: 1.5rem; margin-bottom: 6px; }
+    .funnel-stage .stage-name { font-size: .78rem; font-weight: 700; }
+    .funnel-stage .stage-status { font-size: .68rem; margin-top: 4px; }
+    .param-row { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--gray-200); font-size: .82rem; }
+    .param-row:last-child { border-bottom: none; }
+    .param-key { font-family: monospace; background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .78rem; flex-shrink: 0; }
+    .param-val { flex: 1; }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .82rem; font-family: monospace; }
+    .counter-badge { display: inline-block; background: var(--red); color: var(--white); border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 20px; font-size: .72rem; font-weight: 700; margin-left: 4px; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">FunnelCo</a>
+  <span class="badge">Site 07 · Pixel Optimization Education</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates pixel funnel order issues — Purchase before AddToCart, missing mid-funnel events, over-firing, missing parameters.
+</div>
+
+<div class="hero" style="padding:40px 24px;">
+  <h1>Multi-Step Purchase Funnel</h1>
+  <p>Walk through the funnel to see how pixel events fire — with intentional ordering and parameter issues.</p>
+</div>
+
+<div class="container section">
+
+  <!-- Funnel Visual -->
+  <h2 class="section-title">Funnel Stage Navigator</h2>
+  <p class="section-sub">Click each stage to simulate the pixel event. Notice the issues with ordering and missing mid-funnel steps.</p>
+
+  <div class="funnel-visual">
+    <div class="funnel-stage error" id="stage-purchase" onclick="fireEvent('Purchase')">
+      <div class="stage-icon">&#128176;</div>
+      <div class="stage-name">Purchase</div>
+      <div class="stage-status" style="color:var(--red);">Fires FIRST &#9888;</div>
+    </div>
+    <div class="funnel-stage missing" id="stage-viewcontent" onclick="fireEvent('ViewContent')">
+      <div class="stage-icon">&#128065;</div>
+      <div class="stage-name">ViewContent</div>
+      <div class="stage-status" style="color:var(--orange);">Missing &#9888;</div>
+    </div>
+    <div class="funnel-stage missing" id="stage-addtocart" onclick="fireEvent('AddToCart')">
+      <div class="stage-icon">&#128722;</div>
+      <div class="stage-name">AddToCart</div>
+      <div class="stage-status" style="color:var(--orange);">Over-fires &#9888;</div>
+    </div>
+    <div class="funnel-stage missing" id="stage-initiatecheckout" onclick="fireEvent('InitiateCheckout')">
+      <div class="stage-icon">&#128203;</div>
+      <div class="stage-name">InitiateCheckout</div>
+      <div class="stage-status" style="color:var(--orange);">Missing &#9888;</div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 320px; gap:32px; align-items:start; margin-top:24px;">
+
+    <!-- Left: Product + Controls -->
+    <div>
+      <div class="card mb-24">
+        <div class="card-body">
+          <h3 class="card-title">Sample Product</h3>
+          <div style="display:flex; gap:16px; align-items:center;">
+            <div style="font-size:3rem;">&#128084;</div>
+            <div>
+              <div style="font-weight:700;">Premium Running Shoe</div>
+              <div style="color:var(--blue); font-weight:700; font-size:1.1rem;">$129.99</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="fireEvent('ViewContent')">View Product</button>
+            <button class="btn btn-outline btn-sm" onclick="fireEvent('AddToCart')">
+              Add to Cart <span class="counter-badge" id="atc-count">0</span>
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="fireEvent('InitiateCheckout')">Checkout</button>
+            <button class="btn btn-primary btn-sm" onclick="fireEvent('Purchase')">Purchase</button>
+          </div>
+          <p style="font-size:.75rem; color:var(--orange); margin-top:10px;">
+            &#9888; AddToCart fires on every page load too — not just button clicks
+          </p>
+        </div>
+      </div>
+
+      <!-- Issues Reference -->
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+          <table class="issue-table">
+            <thead><tr><th>Issue</th><th>Detail</th><th>Impact</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="tag tag-red">Wrong funnel order</span></td>
+                <td>Purchase fires before AddToCart — illogical funnel sequence</td>
+                <td>Meta's delivery algorithm gets confused; optimization breaks</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-orange">Missing mid-funnel</span></td>
+                <td>Only PageView and Purchase — no ViewContent, AddToCart, InitiateCheckout</td>
+                <td>No signal for upper/mid funnel optimization</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">Over-firing events</span></td>
+                <td>AddToCart fires on every page load, not just cart actions</td>
+                <td>Inflated event counts; wasted optimization budget</td>
+              </tr>
+              <tr>
+                <td><span class="tag tag-red">Missing parameters</span></td>
+                <td>Purchase has no <code>content_ids</code>, <code>value</code>, or <code>num_items</code></td>
+                <td>Catalog matching fails; value optimization impossible</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Event Detail Panel -->
+    <div>
+      <div class="card" style="position:sticky; top:70px;">
+        <div class="card-body">
+          <h3 class="card-title">Event Detail</h3>
+          <div id="event-detail">
+            <p style="font-size:.85rem; color:#999;">Click a funnel stage or button to see the event payload.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated Pixel Event Log</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:260px; overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  FunnelCo &mdash; Meta Ads Test Site 07 &mdash; Pixel Optimization Education &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  let atcCount = 0;
+  const eventOrder = [];
+
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `<span style="color:${c}">[${ts}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function showDetail(html) {
+    document.getElementById('event-detail').innerHTML = html;
+  }
+
+  function fireEvent(name) {
+    eventOrder.push(name);
+
+    switch(name) {
+      case 'PageView':
+        log(`fbq('track', 'PageView');`);
+        showDetail(`<p style="font-size:.85rem;"><strong>PageView</strong><br>Fires correctly on page load.</p>`);
+        break;
+
+      case 'ViewContent':
+        // Missing: should have content_ids, value
+        log(`fbq('track', 'ViewContent', {});  // ⚠ ISSUE: No content_ids or value`, '#ff8800');
+        showDetail(`<p style="font-size:.85rem; color:var(--orange);">&#9888; <strong>ViewContent</strong><br>Missing <code>content_ids</code> and <code>value</code> parameters.</p>`);
+        break;
+
+      case 'AddToCart':
+        atcCount++;
+        document.getElementById('atc-count').textContent = atcCount;
+        log(`fbq('track', 'AddToCart', { content_ids: ['SHOE_001'], value: 129.99, currency: 'USD' });`);
+        if (atcCount > 1) log(`  ⚠ ISSUE: AddToCart fires on every page load — count now ${atcCount}x`, '#ff4444');
+        showDetail(`<p style="font-size:.85rem; color:var(--red);">&#10060; <strong>AddToCart</strong><br>Has fired <strong>${atcCount}x</strong> — fires on page load, not just cart actions.</p>`);
+        break;
+
+      case 'InitiateCheckout':
+        log(`fbq('track', 'InitiateCheckout', { content_ids: ['SHOE_001'], value: 129.99, currency: 'USD' });`);
+        showDetail(`<p style="font-size:.85rem; color:var(--orange);">&#9888; <strong>InitiateCheckout</strong><br>This event is missing from the default funnel — only fires if explicitly triggered.</p>`);
+        break;
+
+      case 'Purchase':
+        // Intentional: no content_ids, no value, no num_items
+        log(`fbq('track', 'Purchase', {});  // ⚠ ISSUE: No content_ids, value, or num_items`, '#ff4444');
+        const hasPriorATC = eventOrder.includes('AddToCart');
+        if (!hasPriorATC) log(`  ⚠ ISSUE: Purchase fired before AddToCart — wrong funnel order!`, '#ff4444');
+        showDetail(`<p style="font-size:.85rem; color:var(--red);">&#10060; <strong>Purchase</strong><br>Missing: <code>content_ids</code>, <code>value</code>, <code>num_items</code><br>${!hasPriorATC ? '<br>&#10060; Fired before AddToCart — illogical order!' : ''}</p>`);
+        break;
+    }
+  }
+
+  // ISSUE: AddToCart fires on page load
+  log(`// Page loaded — PageView + AddToCart both fire automatically`, '#888');
+  fireEvent('PageView');
+  fireEvent('AddToCart'); // Over-fires on page load
+</script>
+
+</body>
+</html>

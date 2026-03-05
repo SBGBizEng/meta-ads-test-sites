@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StyleStore — Value Optimization Test</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .value-mode-selector {
+      display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0;
+    }
+    .value-mode-btn {
+      padding: 8px 16px; border-radius: 20px; border: 2px solid var(--blue);
+      background: transparent; color: var(--blue); font-weight: 600; font-size: .82rem;
+      cursor: pointer; transition: all .15s;
+    }
+    .value-mode-btn.active { background: var(--blue); color: var(--white); }
+    .value-mode-btn.error-mode { border-color: var(--red); color: var(--red); }
+    .value-mode-btn.error-mode.active { background: var(--red); color: var(--white); }
+    .product-row {
+      display: flex; align-items: center; gap: 16px; padding: 16px;
+      background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 12px;
+    }
+    .product-emoji { font-size: 2rem; width: 48px; text-align: center; }
+    .product-details { flex: 1; }
+    .product-details .name { font-weight: 700; }
+    .product-details .price-display { font-size: .85rem; color: var(--gray-700); }
+    .value-preview {
+      background: #1c1e21; color: #00c851; font-family: monospace; font-size: .8rem;
+      padding: 8px 12px; border-radius: 4px; min-width: 200px;
+    }
+    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: .82rem; font-family: monospace; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="back-link" href="../index.html">&#8592; Hub</a>
+  <a class="logo" href="#">StyleStore</a>
+  <span class="badge">Site 04 · Value Optimization Issues</span>
+</nav>
+
+<div class="issue-banner">
+  &#9888;&nbsp;<strong>Test Site:</strong> Simulates value optimization issues — static values, string types, missing values, tax inconsistencies, and zero-value purchases.
+</div>
+
+<div class="hero" style="padding:40px 24px;">
+  <h1>StyleStore — Premium Fashion</h1>
+  <p>Curated collections for every occasion. Free returns on all orders.</p>
+</div>
+
+<div class="container section">
+
+  <!-- Value Mode Selector -->
+  <h2 class="section-title">Purchase Value Simulation Mode</h2>
+  <p class="section-sub">Select which value bug to simulate. Each mode changes how the Purchase event value is sent.</p>
+
+  <div class="value-mode-selector">
+    <button class="value-mode-btn active" onclick="setMode('static')" id="btn-static">Static value: 1</button>
+    <button class="value-mode-btn error-mode" onclick="setMode('string')" id="btn-string">Value as string</button>
+    <button class="value-mode-btn error-mode" onclick="setMode('missing')" id="btn-missing">Missing value</button>
+    <button class="value-mode-btn error-mode" onclick="setMode('tax')" id="btn-tax">Inconsistent tax</button>
+    <button class="value-mode-btn error-mode" onclick="setMode('zero')" id="btn-zero">Zero value (free item)</button>
+    <button class="value-mode-btn" style="border-color:var(--green);color:var(--green);" onclick="setMode('correct')" id="btn-correct">&#10003; Correct (reference)</button>
+  </div>
+
+  <div id="mode-description" class="issue-banner" style="margin-bottom:24px;">
+    &#9888; <strong>Static value mode:</strong> All Purchase events send <code>value: 1</code> regardless of actual cart total — skews ROAS and value optimization.
+  </div>
+
+  <!-- Products -->
+  <h3 style="font-size:1rem; font-weight:700; margin-bottom:16px;">Products — Add to Cart &amp; Purchase</h3>
+
+  <div id="product-list">
+    <div class="product-row">
+      <span class="product-emoji">&#128084;</span>
+      <div class="product-details">
+        <div class="name">Silk Evening Dress</div>
+        <div class="price-display">Actual price: $149.99 &nbsp;|&nbsp; Tax: $12.00 &nbsp;|&nbsp; Shipping: $8.00</div>
+      </div>
+      <div class="value-preview" id="preview-1">value: 1</div>
+      <button class="btn btn-primary btn-sm" onclick="purchase('DRESS_001', 149.99, 12.00, 8.00)">Buy Now</button>
+    </div>
+
+    <div class="product-row">
+      <span class="product-emoji">&#128083;</span>
+      <div class="product-details">
+        <div class="name">Leather Handbag</div>
+        <div class="price-display">Actual price: $89.99 &nbsp;|&nbsp; Tax: $7.20 &nbsp;|&nbsp; Shipping: $0.00 (free)</div>
+      </div>
+      <div class="value-preview" id="preview-2">value: 1</div>
+      <button class="btn btn-primary btn-sm" onclick="purchase('BAG_002', 89.99, 7.20, 0)">Buy Now</button>
+    </div>
+
+    <div class="product-row">
+      <span class="product-emoji">&#128081;</span>
+      <div class="product-details">
+        <div class="name">Cashmere Scarf</div>
+        <div class="price-display">Actual price: $0.00 (free gift with order)</div>
+      </div>
+      <div class="value-preview" id="preview-3">value: 1</div>
+      <button class="btn btn-primary btn-sm" onclick="purchase('SCARF_FREE', 0, 0, 0)">Claim Free Gift</button>
+    </div>
+
+    <div class="product-row">
+      <span class="product-emoji">&#128086;</span>
+      <div class="product-details">
+        <div class="name">Denim Jacket</div>
+        <div class="price-display">Actual price: $119.99 &nbsp;|&nbsp; Tax: $9.60 &nbsp;|&nbsp; Shipping: $5.00</div>
+      </div>
+      <div class="value-preview" id="preview-4">value: 1</div>
+      <button class="btn btn-primary btn-sm" onclick="purchase('JACKET_003', 119.99, 9.60, 5.00)">Buy Now</button>
+    </div>
+  </div>
+
+  <!-- Issues Reference -->
+  <div class="card mt-24">
+    <div class="card-body">
+      <h3 class="card-title">&#9888; Intentional Issues on This Site</h3>
+      <table class="issue-table">
+        <thead><tr><th>Issue</th><th>What's Sent</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">Static value</span></td>
+            <td>All events: <code>value: 1</code></td>
+            <td>ROAS meaningless; value optimization trains on wrong signal</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Value as string</span></td>
+            <td><code>value: "49.99"</code> (string, not number)</td>
+            <td>Type error — Meta may reject or misparse the value</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Missing value</span></td>
+            <td>Purchase event with no <code>value</code> key</td>
+            <td>Value optimization cannot function</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Inconsistent tax/shipping</span></td>
+            <td>Some events include tax+shipping, some don't</td>
+            <td>Skews average order value and optimization</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Zero value</span></td>
+            <td>Free items send <code>value: 0</code></td>
+            <td>Breaks value optimization model</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Event Log -->
+<div class="container" style="margin-bottom:48px;">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">&#128203; Simulated Pixel Event Log</h3>
+      <div id="event-log" style="font-family:monospace; font-size:.78rem; background:#1c1e21; color:#00c851; padding:16px; border-radius:var(--radius); min-height:80px; max-height:260px; overflow-y:auto;">
+        <span style="color:#888;">// Select a mode and click Buy Now to simulate events...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  StyleStore &mdash; Meta Ads Test Site 04 &mdash; Value Optimization Issues &mdash;
+  <a href="../index.html">Back to Hub</a>
+</footer>
+
+<script>
+  let currentMode = 'static';
+  const products = [
+    { id: 'DRESS_001', price: 149.99, tax: 12.00, ship: 8.00 },
+    { id: 'BAG_002',   price: 89.99,  tax: 7.20,  ship: 0 },
+    { id: 'SCARF_FREE',price: 0,      tax: 0,     ship: 0 },
+    { id: 'JACKET_003',price: 119.99, tax: 9.60,  ship: 5.00 },
+  ];
+
+  const modeDescriptions = {
+    static:  '&#9888; <strong>Static value mode:</strong> All Purchase events send <code>value: 1</code> regardless of actual cart total — skews ROAS and value optimization.',
+    string:  '&#9888; <strong>String value mode:</strong> Value sent as a string <code>"49.99"</code> instead of number <code>49.99</code> — type error that Meta may reject.',
+    missing: '&#10060; <strong>Missing value mode:</strong> Purchase event has no <code>value</code> parameter at all — value optimization cannot function.',
+    tax:     '&#9888; <strong>Inconsistent tax mode:</strong> Some events include tax+shipping, some don\'t — skews average order value.',
+    zero:    '&#9888; <strong>Zero value mode:</strong> All purchases send <code>value: 0</code> — breaks value optimization model.',
+    correct: '&#10003; <strong>Correct mode (reference):</strong> Events send actual product price as a number, excluding tax and shipping.',
+  };
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.value-mode-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + mode).classList.add('active');
+    document.getElementById('mode-description').innerHTML = modeDescriptions[mode];
+    updatePreviews();
+  }
+
+  function getValueForMode(price, tax, ship, index) {
+    switch(currentMode) {
+      case 'static':  return { val: 1, note: '⚠ ISSUE: Static value=1 regardless of actual price' };
+      case 'string':  return { val: `"${price.toFixed(2)}"`, note: '⚠ ISSUE: Value sent as string, not number' };
+      case 'missing': return { val: null, note: '⚠ ISSUE: No value parameter in event' };
+      case 'tax':     return index % 2 === 0
+        ? { val: (price + tax + ship).toFixed(2), note: '⚠ ISSUE: Includes tax+shipping (inconsistent)' }
+        : { val: price.toFixed(2), note: '⚠ ISSUE: Excludes tax+shipping (inconsistent)' };
+      case 'zero':    return { val: 0, note: '⚠ ISSUE: Zero value sent' };
+      case 'correct': return { val: price.toFixed(2), note: '✓ Correct: actual price as number' };
+    }
+  }
+
+  function updatePreviews() {
+    products.forEach((p, i) => {
+      const { val } = getValueForMode(p.price, p.tax, p.ship, i);
+      const el = document.getElementById(`preview-${i+1}`);
+      if (el) el.textContent = val === null ? 'value: [MISSING]' : `value: ${val}`;
+    });
+  }
+
+  function log(msg, color) {
+    const el = document.getElementById('event-log');
+    const ts = new Date().toLocaleTimeString();
+    const c = color || '#00c851';
+    el.innerHTML += `<span style="color:${c}">[${ts}] ${msg}</span>\n`;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function purchase(id, price, tax, ship) {
+    const idx = products.findIndex(p => p.id === id);
+    const { val, note } = getValueForMode(price, tax, ship, idx);
+    const valueStr = val === null ? '' : `, value: ${val}, currency: 'USD'`;
+    log(`fbq('track', 'Purchase', { content_ids: ['${id}']${valueStr} });`);
+    log(`  // ${note}`, note.startsWith('✓') ? '#00c851' : '#ff8800');
+    if (price === 0) log(`  // ⚠ ISSUE: Free item — value: 0 breaks value optimization`, '#ff4444');
+  }
+
+  log(`fbq('track', 'PageView');`, '#888');
+  updatePreviews();
+</script>
+
+</body>
+</html>
