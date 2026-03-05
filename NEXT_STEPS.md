@@ -8,25 +8,45 @@ All 11 test sites are deployed and accessible. Each page is a self-contained sim
 
 ## What to Add Next
 
-### Total Meta Assets Required
+### Total Meta Assets Required (Multi-Pixel Strategy)
 
-To fully implement all 11 test scenarios, you only need a minimal number of core Meta assets. The goal is to use a single set of assets and introduce the specific errors at the implementation level for each site.
+While you *can* use a single pixel for all 11 sites, a better approach for simplicity and clean data is to use **three separate pixels (datasets)**, grouped by the type of issue being tested. This isolates the event data in Events Manager, making it much easier to debug each scenario without interference.
 
-| Asset Type | Quantity Needed | Notes |
+| Asset Type | Quantity | Recommended Name(s) |
 |---|:---:|---|
-| **Meta Pixel / Dataset** | 1 | A single Pixel ID can be used across all 11 sites. The different issues (e.g., duplicate install, wrong ID) are simulated in the code. |
-| **Product Catalog** | 1 | A single catalog can hold all the products needed for Sites 01, 06, and 11. Each product within the catalog can be crafted to have the specific intentional issue (e.g., stale price, bad image URL). |
-| **CAPI Server-Side App** | 1 | A single server-side application (e.g., a small Python/Node.js app) can handle all CAPI events. Logic within the app will introduce the specific errors for each test case (e.g., omitting `event_id` for Site 05). |
-| **CRM Webhook Endpoint** | 1 | A single webhook endpoint (e.g., on Zapier or Make.com) can receive leads from all forms. Logic in the webhook flow will determine how to process them to simulate the issues on Sites 02, 09, and 10. |
+| **Meta Pixel / Dataset** | 3 | `Pixel_Ecomm_Test`<br>`Pixel_Leads_Test`<br>`Pixel_Edu_Test` |
+| **Product Catalog** | 1 | `Catalog_Test_Main` |
+| **CAPI Server-Side App** | 1 | `CAPI_Test_Handler` |
+| **CRM Webhook Endpoint** | 1 | `CRM_Webhook_Test` |
+
+
+### Site-to-Pixel Mapping
+
+Here is the recommended mapping of each test site to one of the three new pixels:
+
+| # | Site | Issue Category | Recommended Pixel |
+|---|---|---|---|
+| 01 | Catalog Sales Issues | E-commerce & Catalog | `Pixel_Ecomm_Test` |
+| 04 | Value Optimization Issues | E-commerce & Catalog | `Pixel_Ecomm_Test` |
+| 06 | Catalog Optimization Issues | E-commerce & Catalog | `Pixel_Ecomm_Test` |
+| 11 | Live Video Shopping | E-commerce & Catalog | `Pixel_Ecomm_Test` |
+|---|---|---|---|
+| 02 | Lead Ads + CAPI for CRM | Lead Generation & CAPI | `Pixel_Leads_Test` |
+| 05 | CAPI Implementation Issues | Lead Generation & CAPI | `Pixel_Leads_Test` |
+| 08 | CAPI Gateway Issues | Lead Generation & CAPI | `Pixel_Leads_Test` |
+| 09 | Instant Form Issues | Lead Generation & CAPI | `Pixel_Leads_Test` |
+| 10 | Conversion Leads Setup | Lead Generation & CAPI | `Pixel_Leads_Test` |
+|---|---|---|---|
+| 03 | Basic Pixel Setup Mistakes | Pixel Fundamentals | `Pixel_Edu_Test` |
+| 07 | Pixel Optimization Education | Pixel Fundamentals | `Pixel_Edu_Test` |
 
 ---
 
+### Step 1 — Install the Meta Pixels (Base Code)
 
-### Step 1 — Install the Meta Pixel (Base Code)
+The first thing to add to each site is the correct Meta Pixel base code. This goes in the `<head>` of every page and enables browser-side event tracking.
 
-The first thing to add to each site is the Meta Pixel base code. This goes in the `<head>` of every page and enables browser-side event tracking.
-
-**Where to get it:** Meta Events Manager → Data Sources → Add New → Web → Meta Pixel
+**Where to get them:** Meta Events Manager → Data Sources → Add New → Web → Meta Pixel (create three of them).
 
 **What to add to each `index.html`:**
 
@@ -36,13 +56,14 @@ The first thing to add to each site is the Meta Pixel base code. This goes in th
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version=\'2.0\';
 n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', 'YOUR_PIXEL_ID');
-fbq('track', 'PageView');
+s.parentNode.insertBefore(t,s)}(window, document,\'script\',
+\'https://connect.facebook.net/en_US/fbevents.js\');
+// Use the correct Pixel ID based on the mapping table above!
+fbq(\'init\', \'YOUR_PIXEL_ID\'); 
+fbq(\'track\', \'PageView\');
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
@@ -51,17 +72,17 @@ src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
 ```
 
 **Key decisions:**
-- Use a **single Pixel ID** across all 11 sites (they share one test account)
-- Site 03 (`edu_pixel_setup`) intentionally needs a **duplicate** install to demo that issue
-- Site 03 also needs a **consent manager stub** to demo the blocking issue
+- Use the correct Pixel ID for each site according to the mapping table above.
+- Site 03 (`edu_pixel_setup`) intentionally needs a **duplicate** install to demo that issue.
+- Site 03 also needs a **consent manager stub** to demo the blocking issue.
 
 ---
 
 ### Step 2 — Wire Up the Simulated Events to Real `fbq()` Calls
 
-Each site already has a JavaScript `log()` function that outputs what events *would* fire. The next step is to replace those log calls with real `fbq('track', ...)` calls.
+Each site already has a JavaScript `log()` function that outputs what events *would* fire. The next step is to replace those log calls with real `fbq(\'track\', ...)` calls.
 
-Each site's event log already shows the exact payload — just copy those into real `fbq()` calls.
+Each site\'s event log already shows the exact payload — just copy those into real `fbq()` calls.
 
 **Priority order by site:**
 
@@ -78,7 +99,7 @@ Each site's event log already shows the exact payload — just copy those into r
 
 ### Step 3 — Set Up a Product Catalog
 
-Sites 01 and 06 are specifically designed to test catalog issues. To make Dynamic Ads work (and to demo the mismatches), you need a Meta Product Catalog.
+Sites 01, 06 and 11 are specifically designed to test catalog issues. To make Dynamic Ads work (and to demo the mismatches), you need a Meta Product Catalog.
 
 **Steps:**
 1. Go to **Commerce Manager** → Create a Catalog → Manual feed or Google Sheet
@@ -109,7 +130,7 @@ Sites 02, 05, 08, and 10 are built to test CAPI issues. To make them real, you n
 ```python
 import requests, hashlib, time
 
-def send_capi_event(event_name, email, event_id=None):
+def send_capi_event(event_name, email, pixel_id, event_id=None):
     hashed_email = hashlib.sha256(email.lower().encode()).hexdigest()
     payload = {
         "data": [{
@@ -123,7 +144,7 @@ def send_capi_event(event_name, email, event_id=None):
         }]
     }
     r = requests.post(
-        f"https://graph.facebook.com/v18.0/{PIXEL_ID}/events",
+        f"https://graph.facebook.com/v18.0/{pixel_id}/events",
         params={"access_token": ACCESS_TOKEN},
         json=payload
     )
@@ -155,7 +176,7 @@ Once the pixel is installed, use these tools to verify:
 
 - **Meta Pixel Helper** (Chrome extension) — shows which events fire on each page in real time
 - **Test Events tool** in Events Manager — confirms events are received server-side
-- **Event Deduplication** — check the "Deduplicated" column in Events Manager to verify Site 05's double-counting issue
+- **Event Deduplication** — check the "Deduplicated" column in Events Manager to verify Site 05\'s double-counting issue
 
 ---
 
