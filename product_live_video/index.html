@@ -126,11 +126,11 @@
               <div class="shelf-id">Shown: HAT_LIVE_03</div>
               <div class="shelf-id" style="color:var(--orange);">Not tagged &#9888;</div>
             </div>
-            <div class="shelf-item" id="shelf-4" onclick="showProduct(4)">
+            <div class="shelf-item" id="shelf-4" onclick="showProduct(4)">  <!-- Sport Jacket: stream JACKET_LIVE_04 ≠ catalog JACKET_CATALOG_04 -->
               <div class="shelf-emoji">&#128086;</div>
-              <div class="shelf-name">Denim Shorts</div>
-              <div class="shelf-id">Shown: SHORT_LIVE_04</div>
-              <div class="shelf-id" style="color:var(--red);">Tagged: SHORT_OLD_88</div>
+              <div class="shelf-name">Sport Jacket</div>
+              <div class="shelf-id">Shown: JACKET_LIVE_04</div>
+              <div class="shelf-id" style="color:var(--red);">Tagged: JACKET_CATALOG_04</div>
             </div>
           </div>
         </div>
@@ -180,7 +180,7 @@
               </tr>
               <tr>
                 <td><span class="tag tag-red">Wrong content_ids</span></td>
-                <td>Air Runner tagged as <code>SHOE_CATALOG_99</code> but shown as <code>SHOE_LIVE_01</code></td>
+                <td>Air Runner shown as <code>SHOE_LIVE_01</code> but catalog has <code>SHOE_CATALOG_99</code>; Jacket shown as <code>JACKET_LIVE_04</code> but catalog has <code>JACKET_CATALOG_04</code></td>
               </tr>
             </tbody>
           </table>
@@ -211,10 +211,10 @@
   let currentProduct = null;
 
   const products = {
-    1: { emoji: '&#128084;', name: 'Air Runner', price: '$129.99', shownId: 'SHOE_LIVE_01', taggedId: 'SHOE_CATALOG_99', issue: 'wrong_id' },
-    2: { emoji: '&#128083;', name: 'Tote Bag',   price: '$49.99',  shownId: 'BAG_LIVE_02',  taggedId: 'BAG_LIVE_02',     issue: null },
-    3: { emoji: '&#128081;', name: 'Wool Hat',   price: '$34.99',  shownId: 'HAT_LIVE_03',  taggedId: null,              issue: 'not_tagged' },
-    4: { emoji: '&#128086;', name: 'Denim Shorts', price: '$59.99', shownId: 'SHORT_LIVE_04', taggedId: 'SHORT_OLD_88',  issue: 'wrong_id' },
+    1: { emoji: '&#128084;', name: 'Air Runner',   price: '$119.99', shownId: 'SHOE_LIVE_01',    taggedId: 'SHOE_CATALOG_99',    issue: 'wrong_id'  },  // ⚠ ISSUE: stream ID ≠ catalog ID
+    2: { emoji: '&#128083;', name: 'Tote Bag',     price: '$65.00',  shownId: 'BAG_LIVE_02',     taggedId: 'BAG_LIVE_02',        issue: null        },  // ✓ Correct: IDs match
+    3: { emoji: '&#128081;', name: 'Wool Hat',     price: '$34.99',  shownId: 'HAT_LIVE_03',     taggedId: null,                 issue: 'not_tagged'},  // ⚠ ISSUE: not in catalog at all
+    4: { emoji: '&#128086;', name: 'Sport Jacket', price: '$189.99', shownId: 'JACKET_LIVE_04',  taggedId: 'JACKET_CATALOG_04',  issue: 'wrong_id'  },  // ⚠ ISSUE: stream ID ≠ catalog ID
   };
 
   function log(msg, color) {
